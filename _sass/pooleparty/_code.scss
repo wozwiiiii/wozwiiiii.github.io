@@ -3,6 +3,7 @@
 // Inline and block-level code snippets. Includes tweaks to syntax highlighted
 // snippets from Pygments/Rouge and Gist embeds.
 
+// <<<<< LINK
 code, pre {
   font-family: $code-font-family;
 }
@@ -26,12 +27,11 @@ pre {
   /* Make code same width as regular text, and scroll the full page width on mobile */
   @include pre();
 
-  backface-visibility: hidden; // wat?
+  backface-visibility: hidden;
 }
 
 pre code {
   padding: 0;
-  // font-size: .75em;
   color: inherit;
   background-color: transparent;
 }
@@ -80,3 +80,4 @@ figure, .figure {
 //   background-color: transparent;
 //   border-radius: 0;
 // }
+// >>>>> LINK

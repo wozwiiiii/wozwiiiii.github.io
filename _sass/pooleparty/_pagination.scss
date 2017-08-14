@@ -3,6 +3,7 @@
 // Super lightweight (HTML-wise) blog pagination. `span`s are provide for when
 // there are no more previous or next posts to show.
 
+// <<<<< INLINE
 .pagination {
   margin: 0 -1.5rem 1rem;
   color: #ccc;
@@ -64,3 +65,4 @@
     }
   }
 }
+// >>>>> INLINE

@@ -1,37 +1,39 @@
-// table {
-//   margin-bottom: 1rem;
-//   width: 100%;
-//   width: calc(100% + 2rem);
-//   margin-left: -1rem;
-//   border: 1px solid $border-color;
-//   border-collapse: collapse;
-//   border-spacing: 0;
-// }
-//
-// td, th {
-//   padding: .25rem .5rem;
-//   border: 1px solid $border-color;
-//
-//   &:first-child {
-//     padding-left: 1rem;
-//   }
-//
-//   &:last-child {
-//     padding-right: 1rem;
-//   }
-// }
-//
-// thead + tbody,
-// tbody + tbody,
-// tfoot {
-//   border-top: 3px double $border-color;
-// }
-//
-// tbody tr:nth-child(odd) td,
-// tbody tr:nth-child(odd) th {
-//   background-color: $gray-bg;
-// }
+// <<<<< INLINE
+table {
+  margin-bottom: 1rem;
+  width: 100%;
+  width: calc(100% + 2rem);
+  margin-left: -1rem;
+  border: 1px solid $border-color;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
 
+td, th {
+  padding: .25rem .5rem;
+  border: 1px solid $border-color;
+
+  &:first-child {
+    padding-left: 1rem;
+  }
+
+  &:last-child {
+    padding-right: 1rem;
+  }
+}
+
+thead + tbody,
+tbody + tbody,
+tfoot {
+  border-top: 3px double $border-color;
+}
+
+tbody tr:nth-child(odd) td,
+tbody tr:nth-child(odd) th {
+  background-color: $gray-bg;
+}
+// >>>>>
+// <<<<< LINK
 // CSS only Responsive Tables
 // http://dbushell.com/2016/03/04/css-only-responsive-tables/
 // by David Bushell
@@ -128,3 +130,4 @@ table.flip-table {
     @include flip-table();
   }
 }
+// >>>>> LINK
