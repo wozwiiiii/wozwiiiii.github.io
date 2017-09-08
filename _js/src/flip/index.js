@@ -20,18 +20,12 @@ import { merge } from 'rxjs/observable/merge';
 import { filter } from 'rxjs/operator/filter';
 // import { partition } from 'rxjs/operator/partition';
 
-import { flipTitle } from './title';
-import { flipProject } from './project';
+import flipTitle from './title';
+import flipProject from './project';
 
 const FLIP_TYPES = ['title', 'projects'];
 
-export function flip(start$, ready$, fadeIn$, options) {
-  // const [startTitle$, other1$] =
-  //   start$::partition(({ flipType }) => flipType === 'title');
-  //
-  // const [startProject$, startOther$] =
-  //   other1$::partition(({ flipType }) => flipType === 'project');
-
+export default function flip(start$, ready$, fadeIn$, options) {
   const other$ = start$::filter(({ flipType }) => !FLIP_TYPES.includes(flipType));
 
   return Observable::merge(
