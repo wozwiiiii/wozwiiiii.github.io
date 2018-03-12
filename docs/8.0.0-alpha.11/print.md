@@ -22,7 +22,7 @@ or [upgrades for pro buyers](#pro-version).)
 
 **NOTE**: This document was created using Hydejack's print layout.
 If you prefer to read it the documentation in your browser,
-you can find it [here]({{ site.baseurl }}{% link docs/8.0.0-alpha.10/index.md %}).
+you can find it [here]({{ site.baseurl }}{% link docs/8.0.0-alpha.11/index.md %}).
 {:.message}
 
 ## Table of Contents
@@ -159,7 +159,7 @@ If you bought the PRO version, you've received a zip archive with the following 
 ├── PRO–hy-push-state License _ Hydejack.pdf
 ├── icon.psd
 ├── sidebar-bg.psd
-├── *-to-v8.0.0-alpha.10.diff
+├── *-to-v8.0.0-alpha.11.diff
 └── .ssh
 ~~~
 
@@ -194,7 +194,7 @@ If you bought the PRO version, you've received a zip archive with the following 
 `sidebar-bg.psd`
 : A Photoshop template for blurred sidebar backgrounds.
 
-`*-to-v8.0.0-alpha.10.diff`
+`*-to-v8.0.0-alpha.11.diff`
 : There will be multiple fo these files, where `*` is a previous version.
   They are git patches that you can apply to your repository via [git-apply](https://git-scm.com/docs/git-apply).
   Use these if you are using git and you are worried about accidentally overwriting changes you've made to Hydejack PRO.
@@ -210,7 +210,7 @@ For new installations only the `install` folder is interesting.
 Unzip the archive somewhere on your machine, then `cd` *into* the `install` folder, e.g.
 
 ~~~bash
-$ cd ~/Downloads/hydejack-pro-8.0.0-alpha.10/install/
+$ cd ~/Downloads/hydejack-pro-8.0.0-alpha.11/install/
 ~~~
 
 You can now continue with [Running locally](#running-locally).
@@ -224,7 +224,7 @@ It is located at `<dowloaded zip>/.ssh/hydejack_pro_customers`.
 You have to copy the key file to `~/.ssh` (or wherever your SSH keys are located), e.g.:
 
 ~~~bash
-$ cp ~/Downloads/hydejack-pro-v8.0.0-alpha.10/.ssh/hydejack_pro_customers ~/.ssh/
+$ cp ~/Downloads/hydejack-pro-v8.0.0-alpha.11/.ssh/hydejack_pro_customers ~/.ssh/
 ~~~
 
 It is required that your private key files are NOT accessible by others, e.g.:
@@ -515,7 +515,7 @@ If you want to use the blog layout at a URL like `/my-blog/`, create the followi
 ~~~
 ├── my-blog
 │   └── index.html
-├── my-blog.md
+├── !my-blog.md
 └── _config.yml
 ~~~
 
@@ -530,17 +530,18 @@ title: Blog
 ~~~
 
 (Optional) If you want to add a link to the blog in the sidebar, DO NOT add the `menu` key to the front matter of `my-blog/index.html`.
-Instead, create a new markdown file called `my-blog.md` and add it there:
+Instead, create a new markdown file called `!my-blog.md` with `menu` and `permalink` keys:
 
 ~~~yml
-## file: my-blog.md
+## file: !my-blog.md
 ---
-title: Blog
+title: My Blog
 menu: true
+permalink: /my-blog/
 ---
 ~~~
 
-Finally, in your cofnig file, make sue the `pageinate_path` matches the location of the index file:
+Finally, in your config file, make sue the `paginate_path` matches the `permalink`:
 
 ~~~yml
 ## file: _config.yml
@@ -687,7 +688,7 @@ author:
   social:
     email:    mailto:mail@qwtel.com
     rss:      {{ site.url }}{{ site.baseurl }}/feed.xml # make sure you provide an absolute URL
-    download: https://github.com/qwtel/hydejack/archive/v8.0.0-alpha.10.zip
+    download: https://github.com/qwtel/hydejack/archive/v8.0.0-alpha.11.zip
 ~~~
 
 ### Enabling comments
@@ -1799,9 +1800,6 @@ Adding [global scripts](#global-scripts) is for scripts that should be loaded on
 ### Embedding
 Hydejack supports embedding third party scripts directly inside markdown content. This will work in most cases, except when a script can not be loaded on a page more than once (this will occur when a user navigates to the same page twice).
 
-**NOTE**: Adding "raw" script tags will make the page slow, unless they have the `async` or `defer` attribute set. For more see [below](#async-vs-defer-vs-loadjsdeferred).
-{:.message}
-
 Example:
 
 ~~~html
@@ -1833,48 +1831,6 @@ opening (or creating) `_includes/my-scripts.html` and adding them like you norma
 
 `my-scripts.html` will be included at the end of the `body` tag.
 
-### `async` vs. `defer` vs. `loadJSDeferred`
-I highly recommended setting the `async` or `defer` attribute on your external scripts,
-otherwise the entire page can't finish loading until a separate HTTP request is completed, which can take a long time (this applies to the web in general, not just Hydejack).
-
-Specific to Hydejack is the `loadJSDeferred` function, which is used to load Hydejack's own scripts.
-It has various advantages which are detailed in the table below.
-
-|           | `async`     | `defer`                | `loadJSDeferred`      |
-|:----------|:------------|:-----------------------|:----------------------|
-| Download  | immediately | immediately            | after document `load` |
-| Execution | asap        | before document `load` | after document `load` |
-| Ordering  | none        | preserves order        | via callback nesting  |
-| Support   | IE8+        | IE9+                   | IE5+ (Hydejack only)  |
-{:.flip-table-small}
-
-#### Using `loadJSDeferred`
-Using `loadJSDeferred` is slightly more work than just adding `defer` to a script tag.
-
-```html
-<script>
-  loadJSDeferred('<script-src>', function () {
-    // <callback code>
-  });
-</script>
-```
-
-If you have scripts that depend on other scripts, you can nest calls, e.g.
-
-```html
-<script>
-  loadJSDeferred('<script-src-1>', function () {
-    // <callback script 1>
-    loadJSDeferred('<script-src-2>', function () {
-      // <callback script 1 + 2>
-      loadJSDeferred('<script-src-3>', function () {
-        // <callback script 1 + 2 + 3>
-      });
-    });
-  });
-</script>
-```
-
 ### Registering push state event listeners
 When embedding scripts globally you might want to run some init code after each page load. However, the problem with push state-based page loads is that the `load` event won't fire again. Luckily, Hydejack's push state component exposes an event that you can listen to instead.
 
@@ -1905,7 +1861,7 @@ Note that the above code must only run once, so include it in your `my-scripts.h
 `hy-push-state-load`
 : All embedded script tags have been inserted into the document and have finished loading.
 
-### Escape hatch
+### If everything else fails
 If you can't make an external script work with Hydejack's push state approach to page loading,
 you can disable push state by adding to your config file:
 
