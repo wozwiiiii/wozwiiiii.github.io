@@ -25,11 +25,4 @@ import './cookies-banner';
 import './katex';
 import './drawer';
 import './push-state';
-
-/*
-// TODO...
-import { HyImageElement } from 'hy-img/src/webcomponent/'
-
-// TODO...
-window.customElements.define('hy-img', HyImageElement);
-*/
+import './images';
