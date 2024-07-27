@@ -7,4 +7,4 @@ vendor
 *.gem
 
 /assets/js/*hydejack-*
-/_sass/*/__*__/*
+/_sass/*/__*__
