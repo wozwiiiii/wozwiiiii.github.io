@@ -1,3 +1,5 @@
+@use "sass:math";
+
 {% assign color       = include.color       %}
 {% assign theme_color = include.theme_color %}
 
