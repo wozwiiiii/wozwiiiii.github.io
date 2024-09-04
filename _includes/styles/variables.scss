@@ -53,8 +53,14 @@ $break-point-font-large: {{ vars.break_point_font_large | default:124 }}em;
 $content-margin-3: 3rem;
 $content-margin-5: 4rem;
 
+$gh-pages-compat: {% if site.github and site.hydejack.dart_sass_2_compat != true %}true{% else %}false{% endif %};
+
 // TODO: doc
-$half-content: ($content-width-5 / 2) + $content-margin-5;
+{% if site.github and site.hydejack.dart_sass_2_compat != true %}
+$half-content:     (($content-width-5 / 2) + $content-margin-5);
+{% else %}
+$half-content: calc(($content-width-5 / 2) + $content-margin-5);
+{% endif %}
 
 // The sidebar width starts adjusting dynamically when the content is at the center of the window.
 // This is the case when the window size has a `min-width` of content area + twice the sidebar (left, right):
