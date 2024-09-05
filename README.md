@@ -46,7 +46,6 @@ The table below shows what's included in each version:
 | [Dark Mode][dark]             |                | &#x2714;            |
 | [Built-In Search][search]     |                | &#x2714;            |
 | [Custom Forms][forms]         |                | &#x2714;            |
-| [Newsletter Box][news]        |                | &#x2714;            |
 | [Grid layout][grid]           |                | &#x2714;            |
 | [Offline Support][ofln]       |                | &#x2714;            |
 | Table of Contents[^2]         |                | &#x2714;            |
@@ -117,14 +116,6 @@ Hydejack uses KaTeX to efficiently render math.
 
 
 
-## Build an Audience
-The PRO version has built-in support for customizable [Tinyletter] newsletter subscription boxes.
-
-If you are using a different service like MailChimp, you can build a custom newsletter subscription box using [Custom Forms][forms].
-
-
-
-
 ## Features
 
 An incomplete list of features included in all versions of **Hydejack**:
@@ -163,7 +154,6 @@ The table below shows what's included in each version:
 | [Dark Mode][dark]             |                | &#x2714;            |
 | [Built-In Search][search]     |                | &#x2714;            |
 | [Custom Forms][forms]         |                | &#x2714;            |
-| [Newsletter Box][news]        |                | &#x2714;            |
 | [Grid layout][grid]           |                | &#x2714;            |
 | [Offline Support][ofln]       |                | &#x2714;            |
 | Table of Contents[^2]         |                | &#x2714;            |
@@ -217,4 +207,3 @@ The table below shows what's included in each version:
 [rouge]: http://rouge.jneen.net
 [katex]: https://khan.github.io/KaTeX/
 [mathjax]: https://www.mathjax.org/
-[tinyletter]: https://tinyletter.com/
