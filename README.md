@@ -53,7 +53,7 @@ The table below shows what's included in each version:
 | No Hydejack Branding          |                | &#x2714;            |
 | License                       | [GPL-3.0][lic] | [PRO]               |
 | Source                        | [GitHub][src]  | Included            |
-| __Price__                     | __Free__       | __$99__{:.price} <small>One-Time Purchase</small> |
+| __Price__                     | __Free__       | __$99__{:.price} <small>One-Time Purchase</small>[^xx] |
 | | [__Download__][kit] <br/>-- or --<br/> [__Deploy to Netlify__][nfy] | [__Buy PRO__][buy] |
 
 
@@ -161,12 +161,17 @@ The table below shows what's included in each version:
 | No Hydejack Branding          |                | &#x2714;            |
 | License                       | [GPL-3.0][lic] | [PRO]               |
 | Source                        | [GitHub][src]  | Included            |
-| __Price__                     | __Free__       | __$99__{:.price} <small>One-Time Purchase</small> |
+| __Price__                     | __Free__       | __$99__{:.price} <small>One-Time Purchase</small>[^xx] |
 | | [__Download__][kit] <br/>-- or --<br/> [__Deploy to Netlify__][nfy] | [__Buy PRO__][buy] |
 
 [^1]: Actual page load speed depends on your hosting provider, resolution of embedded images and usage of 3rd party plugins.
 
 [^2]: Large screens (> 1664px width) only.
+
+[^xx]: 
+    Discounts may apply, check [Gumroad][buy]{:data-gumroad-single-product="true"} for up-to-date pricing.
+    {:.price-desc}
+
 
 *[FLIP]: First-Last-Invert-Play. A coding technique to achieve performant page transition animations.
 
