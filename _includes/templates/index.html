@@ -6,4 +6,7 @@
   {% include templates/loading.html %}
   {% include templates/error.html %}
   {% include templates/permalink.html %}
+  {% if site.hydejack.dark_mode.icon %}
+    {% include templates/pro/dark-mode.html %}
+  {% endif %}
 </div>

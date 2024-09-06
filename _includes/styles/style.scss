@@ -18,6 +18,12 @@
 @import "my-variables";
 @import "mixins";
 
+{% if site.hydejack.dark_mode.dynamic %}
+  @import "pro/dark-mode-dynamic";
+{% else %}
+  @import "pro/dark-mode";
+{% endif %}
+
 @import "reboot-mod";
 
 {% unless site.hydejack.no_inline_css or jekyll.environment == 'development' %}
@@ -101,3 +107,7 @@
 @import "tippy";
 
 @import "syntax";
+@import "pro/syntax-dark";
+{% if site.hydejack.dark_mode.dynamic %}
+  @import "pro/dark-mode-dynamic-syntax";
+{% endif %}
