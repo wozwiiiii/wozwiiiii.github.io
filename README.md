@@ -41,9 +41,9 @@ The table below shows what's included in each version:
 | [Blog]                        | &#x2714;       | &#x2714;            |
 | [Features]                    | &#x2714;       | &#x2714;            |
 | [Documentation][docs]         | &#x2714;       | &#x2714;            |
+| [Dark Mode][dark]             | &#x2714;       | &#x2714;            |
 | [Portfolio]                   |                | &#x2714;            |
 | Printable [Resume]            |                | &#x2714;            |
-| [Dark Mode][dark]             |                | &#x2714;            |
 | [Built-In Search][search]     |                | &#x2714;            |
 | [Custom Forms][forms]         |                | &#x2714;            |
 | [Grid layout][grid]           |                | &#x2714;            |
@@ -149,9 +149,9 @@ The table below shows what's included in each version:
 | [Blog]                        | &#x2714;       | &#x2714;            |
 | [Features]                    | &#x2714;       | &#x2714;            |
 | [Documentation][docs]         | &#x2714;       | &#x2714;            |
+| [Dark Mode][dark]             | &#x2714;       | &#x2714;            |
 | [Portfolio]                   |                | &#x2714;            |
 | Printable [Resume]            |                | &#x2714;            |
-| [Dark Mode][dark]             |                | &#x2714;            |
 | [Built-In Search][search]     |                | &#x2714;            |
 | [Custom Forms][forms]         |                | &#x2714;            |
 | [Grid layout][grid]           |                | &#x2714;            |
