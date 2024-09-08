@@ -1,5 +1,5 @@
-// {% assign color       = include.color       %}
-// {% assign theme_color = include.theme_color %}
+{% assign color       = include.color       %}
+{% assign theme_color = include.theme_color %}
 
 html {
   --accent-color: {{ color }};
