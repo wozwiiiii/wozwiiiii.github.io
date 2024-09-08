@@ -31,6 +31,4 @@ html {
   // --break-point-font-large: #{$break-point-font-large};
 
   --break-point-dynamic: #{$break-point-dynamic};
-
-  @include light-mode();
 }

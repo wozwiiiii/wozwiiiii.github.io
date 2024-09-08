@@ -30,7 +30,7 @@ $root-line-height:      {{ vars.root_line_height      | default:1.75 }};
 
 $font-weight:         {{ vars.font_weight         | default:400 }};
 $font-weight-bold:    {{ vars.font_weight_bold    | default:700 }};
-$font-weight-heading: {{ vars.font_weight_heading | default:700 }};
+$font-weight-heading: {{ vars.font_weight_heading | default:900 }};
 
 $content-width:   {{ vars.content_width   | default:42 }}rem;
 $content-width-2: {{ vars.content_width_2 | default:48 }}rem;
