@@ -150,12 +150,6 @@ The table below shows what's included in each version:
 
 
 
-## Get It Now
-
-Use the the form below to purchase Hydejack PRO:
-
-<div class="gumroad-product-embed" data-gumroad-product-id="nuOluY"><a href="https://gumroad.com/l/nuOluY">Loading…</a></div>
-
 
 [blog]: https://hydejack.com/blog/
 [portfolio]: https://hydejack.com/showcase/
