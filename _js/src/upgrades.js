@@ -120,7 +120,9 @@ const toggleClass = (element, ...cls) => {
       Array.from(main.querySelectorAll(CODE_BLOCK_SEL)).forEach((el) => {
         const container = el?.parentNode?.parentNode;
         const writeText = async () => {
-          await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([el.textContent], { type: 'text/plain' }) })]);
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'text/plain': new Blob([el.textContent], { type: 'text/plain' }) }),
+          ]);
           toggleClass(copyBtn, 'copy-success');
         };
         const copyBtn = createElement(

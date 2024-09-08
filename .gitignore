@@ -7,5 +7,5 @@ vendor
 .ruby-lsp
 *.gem
 
-/assets/js/*hydejack-*
-/_sass/*/__*__
+#<removed/js>
+#<removed/css>
