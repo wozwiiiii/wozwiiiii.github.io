@@ -138,7 +138,7 @@ The table below shows what's included in each version:
 | No Hydejack Branding          |                     | &#x2714;            |
 | License                       | [GPL-3.0][lic]      | [PRO]               |
 | Source                        | [GitHub][src]       | Included            |
-| __Price__                     | __Free__            | __$119__ <small>One-Time Purchase</small>[^xx] |
+| __Price__                     | __Free__            | __$99__ <small>One-Time Purchase</small>[^xx] |
 |                               | [__Download__][kit] | [__Buy PRO__][buy] |
 
 
