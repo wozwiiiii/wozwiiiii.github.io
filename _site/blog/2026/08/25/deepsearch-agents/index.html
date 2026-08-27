@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh"><!--
+ __  __                __                                     __
+/\ \/\ \              /\ \             __                    /\ \
+\ \ \_\ \   __  __    \_\ \      __   /\_\      __       ___ \ \ \/'\
+ \ \  _  \ /\ \/\ \   /'_` \   /'__`\ \/\ \   /'__`\    /'___\\ \ , <
+  \ \ \ \ \\ \ \_\ \ /\ \L\ \ /\  __/  \ \ \ /\ \L\.\_ /\ \__/ \ \ \\`\
+   \ \_\ \_\\/`____ \\ \___,_\\ \____\ _\ \ \\ \__/.\_\\ \____\ \ \_\ \_\
+    \/_/\/_/ `/___/> \\/__,_ / \/____//\ \_\ \\/__/\/_/ \/____/  \/_/\/_/
+                /\___/                \ \____/
+                \/__/                  \/___/
+
+Powered by Hydejack v9.2.1 <https://hydejack.com/>
+-->
+
+
+
+
+
+
+
+<head>
+  
+
+
+
+
+
+
+  
+    
+<!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>deepsearch — 深度探索系统 | wozwiiiii</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="deepsearch — 深度探索系统" />
+<meta name="author" content="陈登基" />
+<meta property="og:locale" content="zh_CN" />
+<meta name="description" content="基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题" />
+<meta name="twitter:description" property="og:description" content="基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题" />
+<link rel="canonical" href="http://localhost:4000/blog/2026/08/25/deepsearch-agents/" />
+<meta property="og:url" content="http://localhost:4000/blog/2026/08/25/deepsearch-agents/" />
+<meta property="og:site_name" content="wozwiiiii" />
+<meta property="og:image" content="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-08-25T00:00:00+08:00" />
+<meta property="article:modified_time" content="2026-08-25T00:00:00+08:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9" />
+<meta name="twitter:title" content="deepsearch — 深度探索系统" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"陈登基"},"dateModified":"2026-08-25T00:00:00+08:00","datePublished":"2026-08-25T00:00:00+08:00","description":"基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题","headline":"deepsearch — 深度探索系统","image":"https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/blog/2026/08/25/deepsearch-agents/"},"url":"http://localhost:4000/blog/2026/08/25/deepsearch-agents/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  
+
+  
+
+
+
+  <meta name="color-scheme" content="dark light">
+
+
+
+  <meta name="theme-color" content="rgb(25,55,71)">
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="wozwiiiii">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<meta name="application-name" content="wozwiiiii">
+
+<meta name="generator" content="Hydejack v9.2.1" />
+
+
+<link rel="alternate" href="http://localhost:4000/blog/2026/08/25/deepsearch-agents/" hreflang="zh-cn">
+
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="wozwiiiii" />
+
+
+<link rel="shortcut icon"    href="/assets/icons/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+
+<link rel="manifest" href="/assets/site.webmanifest">
+
+
+
+
+
+<link rel="preload" href="/assets/img/swipe.svg" as="image" id="_hrefSwipeSVG">
+
+
+
+
+
+
+<script>((r,a)=>{function d(e,t,n,o){e.addEventListener?e.addEventListener(t,n,o):e.attachEvent?e.attachEvent("on"+t,n):e["on"+t]=n}r.loadJS=function(e,t){var n=a.createElement("script"),e=(n.src=e,t&&d(n,"load",t,{once:!0}),a.scripts[0]);return e.parentNode.insertBefore(n,e),n},r._loaded=!1,r.loadJSDeferred=function(e,t){var n=a.createElement("script");function o(){r._loaded=!0,t&&d(n,"load",t,{once:!0});var e=a.scripts[0];e.parentNode.insertBefore(n,e)}return n.src=e,r._loaded?o():d(r,"load",o,{once:!0}),n},r.setRel=r.setRelStylesheet=function(e){d(a.getElementById(e),"load",function(){this.rel="stylesheet"},{once:!0})}})(window,document);
+!function(a){"use strict";var b=function(b,c,d){function e(a){return h.body?a():void setTimeout(function(){e(a)})}function f(){i.addEventListener&&i.removeEventListener("load",f),i.media=d||"all"}var g,h=a.document,i=h.createElement("link");if(c)g=c;else{var j=(h.body||h.getElementsByTagName("head")[0]).childNodes;g=j[j.length-1]}var k=h.styleSheets;i.rel="stylesheet",i.href=b,i.media="only x",e(function(){g.parentNode.insertBefore(i,c?g:g.nextSibling)});var l=function(a){for(var b=i.href,c=k.length;c--;)if(k[c].href===b)return a();setTimeout(function(){l(a)})};return i.addEventListener&&i.addEventListener("load",f),i.onloadcssdefined=l,l(f),i};"undefined"!=typeof exports?exports.loadCSS=b:a.loadCSS=b}("undefined"!=typeof global?global:this);
+!function(a){if(a.loadCSS){var b=loadCSS.relpreload={};if(b.support=function(){try{return a.document.createElement("link").relList.supports("preload")}catch(b){return!1}},b.poly=function(){for(var b=a.document.getElementsByTagName("link"),c=0;c<b.length;c++){var d=b[c];"preload"===d.rel&&"style"===d.getAttribute("as")&&(a.loadCSS(d.href,d,d.getAttribute("media")),d.rel=null)}},!b.support()){b.poly();var c=a.setInterval(b.poly,300);a.addEventListener&&a.addEventListener("load",function(){b.poly(),a.clearInterval(c)}),a.attachEvent&&a.attachEvent("onload",function(){a.clearInterval(c)})}}}(this);
+!function(w) {
+  w._baseURL = '/';
+  w._publicPath = '/assets/js/';
+  w._noPushState = false;
+  w._noDrawer = false;
+  w._noNavbar = false;
+  w._noToc = false;
+  w._noSearch = false;
+  w._search = {
+    DATA_URL: '/assets/sitedata.json?no-cache',
+    STORAGE_KEY: 'mini-search/',
+    INDEX_KEY: 'index--2026-08-27T10:14:29+08:00',
+  };
+  w._clapButton = true;
+}(window);</script>
+
+
+
+<!--[if gt IE 8]><!---->
+
+  
+
+
+
+
+<link rel="stylesheet" href="/assets/css/hydejack-9.2.1.css" id="_stylePreload">
+<link rel="stylesheet" href="/assets/icomoon/style.css" id="_iconsPreload">
+
+
+
+
+  <style id="_pageStyle">
+
+html{--accent-color: rgb(79,177,186);--accent-color-faded: rgba(79, 177, 186, 0.5);--accent-color-highlight: rgba(79, 177, 186, 0.1);--accent-color-darkened: #409ba3;--theme-color: rgb(25,55,71);--dark-mode-body-bg: hsl(200.8695652174, 5.9895833333%, 17.5%);--dark-mode-border-color: hsl(200.8695652174, 5.9895833333%, 22.5%)}
+</style>
+
+
+<!--<![endif]-->
+
+
+
+
+
+</head>
+
+<body class="no-break-layout">
+  
+<script>
+  window._sunrise = 6;
+  window._sunset =  18;
+  ((e,s)=>{var d="light-mode",a="dark-mode",o=(new Date).getHours();"matchMedia"in e&&e.matchMedia("(prefers-color-scheme)")||(e=(o=o<=e._sunrise||o>=e._sunset?a:d)==a?d:a,s.body.classList.add(o),s.body.classList.remove(e))})(window,document);
+
+</script>
+
+
+
+<hy-push-state
+  id="_pushState"
+  replace-selector="#_main"
+  link-selector="a[href]:not([href^='/assets/']):not(.external):not(.no-push-state)"
+  script-selector="script"
+  duration="500"
+  hashchange
+>
+  
+  
+  <div id="_navbar" class="navbar fixed-top">
+  <div class="content">
+    <span class="sr-only">Jump to:</span>
+    <div class="nav-btn-bar">
+      <a id="_menu" class="nav-btn no-hover" href="#_drawer--opened">
+        <span class="sr-only">Navigation</span>
+        <span class="icon-menu"></span>
+      </a>
+      <div class="nav-span"></div>
+    </div>
+  </div>
+</div>
+<hr class="sr-only" hidden />
+
+  <main
+  id="_main"
+  class="content layout-post"
+  role="main"
+>
+  <nav id="breadcrumbs" class="screen-only"><ul>
+  
+  
+    <li><a href="/">home</a></li>
+    
+      <li>
+        
+          <span>/</span>
+          
+          
+          <a href="/blog/">blog</a>
+        
+      </li>
+    
+      <li>
+        
+          <span>/</span>
+          
+          
+          <a href="/blog/2026/">2026</a>
+        
+      </li>
+    
+      <li>
+        
+          <span>/</span>
+          
+          
+          <a href="/blog/2026/08/">08</a>
+        
+      </li>
+    
+      <li>
+        
+          <span>/</span>
+          
+          
+          <a href="/blog/2026/08/25/">25</a>
+        
+      </li>
+    
+      <li>
+        
+          <span>/</span>
+          <span>deepsearch-agents</span>
+        
+      </li>
+    
+  
+</ul></nav>
+  
+
+
+
+
+
+
+
+
+
+
+<article id="post-blog-2026-08-25-deepsearch-agents" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title flip-project-title">
+      
+        deepsearch — 深度探索系统
+      
+    </h1>
+
+    <div class="post-date">
+      
+      <span class="ellipsis mr1">
+        <time datetime="2026-08-25T00:00:00+08:00">25 Aug 2026</time> in <span>项目</span> on <span>Agent</span>, <span>Langgraph</span>, <span>安全</span>, <span>Fastapi</span>, <span>生产化改造</span>
+      </span>
+      
+        
+      
+    </div>
+
+    
+    
+      
+        <div class="img-wrapper lead aspect-ratio sixteen-nine flip-project-img">
+          
+
+
+<img
+  
+    src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9"
+  
+  alt="deepsearch — 深度探索系统"
+  
+  
+  width="864"
+  height="486"
+  loading="lazy"
+/>
+
+        </div>
+      
+      
+    
+
+    
+
+
+
+  
+    <p class="note-sm" >
+      基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题
+
+    </p>
+  
+
+
+  </header>
+
+  
+    <h2 id="项目背景">项目背景</h2>
+
+<p><strong>诚实表述：</strong> 本仓库基于开源教学项目deepsearch-agents（MIT协议，原始教学代码来自<a href="https://github.com/didilili/deepsearch-agents">didilili/deepsearch-agents</a>）。正确定位是：<strong>基于开源教学项目做了生产化改造</strong>，覆盖路径穿越、SQL任意执行、横向越权、无认证、租户串台、无限流等14类问题，129个回归测试，而不是把整个项目说成从零自研。</p>
+
+<p><strong>解决什么问题：</strong> 把”用户自然语言问题”调度到多来源工具（公开网络、MySQL业务库、RAGFlow知识库、文件工具）协同检索，并实时回传执行进度，最终以Markdown/PDF交付报告。</p>
+
+<h2 id="架构总览">架构总览</h2>
+
+<p>五层架构：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 用户交互层    React + Vite前端 | HTTP命令通道 | WebSocket进度通道
+                    ↓ HTTP发命令，WebSocket回进度
+2. API与实时通信层  FastAPI server.py | /api/task + active_tasks | ConnectionManager
+                    ↓ 只做轻量调度，长耗时任务交给后台协程
+3. DeepAgents调度层  main_agent.py: create_deep_agent + run_deep_agent(astream)
+                    ContextVar: thread_id / session_dir | monitor.py
+                    ↓ 主智能体判断信息缺口，子智能体只处理自己信息来源
+4. 子智能体与工具层  网络搜索(Tavily) | 数据库查询(MySQL) | RAGFlow助手 | 文件交付工具
+                    ↓
+5. 数据源与产物层  公开网页 | MySQL业务库 | RAGFlow知识库 | output: MD/PDF
+</code></pre></div></div>
+
+<h2 id="技术选型理由">技术选型理由</h2>
+
+<h3 id="langgraph-作为agent编排框架">LangGraph 作为Agent编排框架</h3>
+
+<p>框架层面采用LangGraph，可由<code class="language-plaintext highlighter-rouge">langgraph-checkpoint-sqlite</code>包名与<code class="language-plaintext highlighter-rouge">AsyncSqliteSaver</code>类名直接佐证。</p>
+
+<p><strong>选型理由</strong>（文档原文：”当初选可替换saver的回报”）：checkpointer接口可替换是选型时的重要考量。单机用SQLite，多副本时换Postgres（<code class="language-plaintext highlighter-rouge">langgraph-checkpoint-postgres</code>），接口不变只换saver实现，业务代码零改动。</p>
+
+<h3 id="arq而非celery做任务队列">ARQ而非Celery做任务队列</h3>
+
+<p>项目强调<code class="language-plaintext highlighter-rouge">run_deep_agent</code>为async协程，并以此为理由选用ARQ——ARQ原生async、与FastAPI同事件循环模型；Celery的同步模型会让async Agent退化成线程池调用，丢掉并发优势。Temporal引入整套server过重，同样排除。</p>
+
+<h3 id="fail-closed而非fail-open">fail-closed而非fail-open</h3>
+
+<p>未配置<code class="language-plaintext highlighter-rouge">API_KEYS</code>时业务接口默认返回<strong>503</strong>（原版fail-open裸奔）；仅显式<code class="language-plaintext highlighter-rouge">ALLOW_DEV_MODE=1</code>才进入开发模式；<code class="language-plaintext highlighter-rouge">ALLOW_DEV_MODE=true</code>等”看似开启”的值一律拒绝。忘配密钥时服务不能照常裸奔。</p>
+
+<h2 id="核心数据流">核心数据流</h2>
+
+<h3 id="主流程">主流程</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>前端提交任务（query 1-10000字符，Pydantic校验）
+  ▼
+X-API-Key认证（compare_digest常数时间比较）→ 绑定Principal.user_id
+  ▼
+slowapi限流（按密钥SHA-256截断16位计配额，401不消耗配额）
+  ▼
+FastAPI后台协程 asyncio.create_task → run_deep_agent
+  ▼
+DeepAgents调度层:
+  → 创建会话目录 output/user_{uid}/session_{tid}
+  → ContextVar透传 thread_id / session_dir
+  → astream异步流式执行，monitor上报 assistant/tool/result 三类事件
+  → WebSocket实时回传进度
+  ▼
+Markdown/PDF交付（文件接口改为thread_id驱动，服务端拼接路径）
+</code></pre></div></div>
+
+<h3 id="harness层面设计">Harness层面设计</h3>
+
+<p><strong>惰性初始化：</strong> Agent改为惰性初始化（首次任务时建库建连接并缓存复用），避免模块导入即占连接。服务重启后同一复合thread_id自动恢复历史消息与执行状态。</p>
+
+<p><strong>模型调用上限中间件：</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ModelCallLimitMiddleware</span><span class="p">(</span><span class="n">run_limit</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">thread_limit</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">exit_behavior</span><span class="o">=</span><span class="sh">"</span><span class="s">error</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>单次任务最多80次模型调用、单会话（跨重启累计）最多300次</li>
+  <li>超限抛异常由<code class="language-plaintext highlighter-rouge">run_deep_agent</code>捕获并经monitor告知前端</li>
+  <li><strong>诚实声明边界</strong>：是调用次数上限，不是token预算；token级熔断仍是待做项</li>
+</ul>
+
+<p><strong>Checkpointer持久化：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>阶段</th>
+      <th>实现</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>原版</td>
+      <td><code class="language-plaintext highlighter-rouge">InMemorySaver</code></td>
+      <td>重启丢全部上下文</td>
+    </tr>
+    <tr>
+      <td>已落地</td>
+      <td><code class="language-plaintext highlighter-rouge">AsyncSqliteSaver</code></td>
+      <td>持久化到checkpoints.sqlite3</td>
+    </tr>
+    <tr>
+      <td>设计稿</td>
+      <td><code class="language-plaintext highlighter-rouge">AsyncPostgresSaver</code></td>
+      <td>多副本水平扩容，接口不变</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>多租户隔离根：</strong> 复合键<code class="language-plaintext highlighter-rouge">{user_id}-{thread_id}</code>是task表主键、WS路由键、checkpointer thread_id的统一根。user_id限纯小写字母数字保证复合键无歧义。文档原话：”复合键不动……这是多租户隔离的根，改它等于推倒重来。”</p>
+
+<h2 id="防护措施14类问题修复">防护措施（14类问题修复）</h2>
+
+<h3 id="路径穿越防御apputilspath_utilspy重写">路径穿越防御（<code class="language-plaintext highlighter-rouge">app/utils/path_utils.py</code>重写）</h3>
+
+<ul>
+  <li>所有路径解析结果强制<strong>收容（containment）</strong>在<code class="language-plaintext highlighter-rouge">session_dir</code>内，越界抛<code class="language-plaintext highlighter-rouge">PathEscapeError</code></li>
+  <li>绝对路径（Windows盘符/Unix根路径）一律拒绝</li>
+  <li>三个文件工具捕获<code class="language-plaintext highlighter-rouge">PathEscapeError</code>返回<strong>引导性错误文本，模型可自我纠正重试，不中断Agent循环</strong></li>
+  <li>验证：<code class="language-plaintext highlighter-rouge">tests/test_path_safety.py</code> 14个用例</li>
+</ul>
+
+<h3 id="sql只读三件套apptoolsdb_toolspy">SQL只读三件套（<code class="language-plaintext highlighter-rouge">app/tools/db_tools.py</code>）</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. assert_readonly_sql: 剥离注释后仅放行SELECT/SHOW/DESCRIBE/EXPLAIN
+#    多语句(stacked queries)、INTO OUTFILE/DUMPFILE、LOAD_FILE、DML/DDL一律拒绝
+#    被拒SQL不建立数据库连接，直接返回错误文本
+</span>
+<span class="c1"># 2. validate_table_name: 表名白名单 ^[A-Za-z0-9_]{1,64}$ + 反引号包裹
+</span>
+<span class="c1"># 3. enforce_select_limit: sqlglot解析SELECT，无LIMIT自动追加LIMIT 1000
+#    UNION等集合操作也补LIMIT；解析失败抛SQLSafetyError，不执行
+</span></code></pre></div></div>
+
+<p>验证：<code class="language-plaintext highlighter-rouge">tests/test_sql_guard.py</code> 45个用例。</p>
+
+<p><strong>账号层兜底</strong>：MySQL只读账号<code class="language-plaintext highlighter-rouge">deepsearch_ro@%</code>，仅<code class="language-plaintext highlighter-rouge">GRANT SELECT</code>。文档原文：”工具层校验是第一道防线，数据库最小权限是第二道。”</p>
+
+<h3 id="横向越权--多租户隔离">横向越权 + 多租户隔离</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/api/files</code>、<code class="language-plaintext highlighter-rouge">/api/download</code>原接受任意绝对路径 → 改为thread_id驱动，服务端拼接路径</li>
+  <li>目录结构改为<code class="language-plaintext highlighter-rouge">output/user_{uid}/session_{tid}</code>，天然隔离会话</li>
+</ul>
+
+<h3 id="限流slowapi">限流（slowapi）</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">POST /api/task</code>限10/min，<code class="language-plaintext highlighter-rouge">POST /api/upload</code>限30/min</li>
+  <li>限流键按<strong>密钥SHA-256截断16位</strong>（明文不入限流状态与日志）</li>
+  <li>认证先于限流执行，401请求不消耗配额</li>
+</ul>
+
+<h3 id="代码审查修复四项">代码审查修复四项</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>问题</th>
+      <th>修复</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>R-1</td>
+      <td>上传无总量上限</td>
+      <td>请求级100MB + 文件数20，写盘前拒绝</td>
+    </tr>
+    <tr>
+      <td>R-2</td>
+      <td>多文件非原子</td>
+      <td><code class="language-plaintext highlighter-rouge">_rollback_saved</code>：任一失败清理已写入全部文件</td>
+    </tr>
+    <tr>
+      <td>R-3</td>
+      <td>非ASCII密钥触发TypeError→500</td>
+      <td>非ASCII密钥直接401</td>
+    </tr>
+    <tr>
+      <td>R-4</td>
+      <td>测试写真实运行时目录</td>
+      <td>autouse fixture指向tmp_path</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="错误返回原版本机制汇总">错误返回原版本机制汇总</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>场景</th>
+      <th>行为</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>路径越界</td>
+      <td>抛PathEscapeError，工具层捕获返回引导性文本，Agent自纠重试</td>
+    </tr>
+    <tr>
+      <td>SQL校验失败</td>
+      <td>不建数据库连接，直接返回错误文本</td>
+    </tr>
+    <tr>
+      <td>SQL解析失败</td>
+      <td>SQLSafetyError，不执行</td>
+    </tr>
+    <tr>
+      <td>模型调用超限</td>
+      <td>exit_behavior=”error”抛异常，run_deep_agent捕获经monitor告知前端</td>
+    </tr>
+    <tr>
+      <td>多文件上传失败</td>
+      <td>_rollback_saved清理已写入全部文件</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="测试与完成状态">测试与完成状态</h2>
+
+<p>129个回归测试，6秒全绿（mock掉<code class="language-plaintext highlighter-rouge">run_deep_agent</code>，纯打校验逻辑，不需要任何真实服务）：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>测试文件</th>
+      <th>用例数</th>
+      <th>覆盖领域</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>test_path_safety.py</td>
+      <td>14</td>
+      <td>路径穿越防御</td>
+    </tr>
+    <tr>
+      <td>test_sql_guard.py</td>
+      <td>45</td>
+      <td>SQL只读 + 自动LIMIT + UNION</td>
+    </tr>
+    <tr>
+      <td>test_api_security.py</td>
+      <td>31</td>
+      <td>上传安全 + 会话隔离 + 回滚</td>
+    </tr>
+    <tr>
+      <td>test_auth.py</td>
+      <td>28</td>
+      <td>API Key认证 + fail-closed + 非ASCII</td>
+    </tr>
+    <tr>
+      <td>test_rate_limit.py</td>
+      <td>7</td>
+      <td>slowapi限流</td>
+    </tr>
+    <tr>
+      <td>test_checkpointer.py</td>
+      <td>4</td>
+      <td>SQLite持久化 + middleware透传</td>
+    </tr>
+    <tr>
+      <td><strong>合计</strong></td>
+      <td><strong>129</strong></td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>完成状态：</strong> 三批生产化改造（安全加固→认证与状态→限流与成本）+ 一次正式代码审查修复全部落地。</p>
+
+<h2 id="如实声明的已知限制">如实声明的已知限制</h2>
+
+<ol>
+  <li><strong>任务队列</strong>：当前<code class="language-plaintext highlighter-rouge">asyncio.create_task</code>进程内执行，重启即丢。ARQ+Redis+Postgres设计稿已写但未实现</li>
+  <li><strong>可观测性</strong>：现状只有<code class="language-plaintext highlighter-rouge">print</code>，没有结构化日志/指标/告警</li>
+  <li><strong>CI/CD</strong>：<code class="language-plaintext highlighter-rouge">.github/workflows/ci.yml</code>已创建文件但未提交；后端无Dockerfile</li>
+  <li><strong>内容安全</strong>：ClamAV、模型输出审核、提示注入防护未做</li>
+  <li><strong>认证升级</strong>：API Key适合个人/小团队，对外多用户需换OIDC+JWT</li>
+  <li><strong>token级预算熔断</strong>：当前只有调用次数上限，无token累计熔断</li>
+</ol>
+
+<h2 id="github">GitHub</h2>
+
+<p><a href="https://github.com/wozwiiiii/hello-agents-my-build.git">wozwiiiii/hello-agents-my-build</a></p>
+
+  
+</article>
+
+
+
+  <hr class="dingbat related mb6" />
+
+
+
+
+
+
+  
+     
+
+
+  <aside class="about related mt4 mb4" role="complementary">
+    
+    
+
+<div class="author mt4">
+  
+
+  
+    
+    
+<img class="avatar" alt="wozwiiiii" width="128" height="128" data-proofer-ignore="true" src="https://avatars2.githubusercontent.com/wozwiiiii?v=3&s=128" srcset="https://avatars2.githubusercontent.com/wozwiiiii?v=3&s=128 1x, https://avatars2.githubusercontent.com/wozwiiiii?v=3&s=256 2x, https://avatars2.githubusercontent.com/wozwiiiii?v=3&s=384 3x, https://avatars2.githubusercontent.com/wozwiiiii?v=3&s=512 4x" />
+
+  
+
+  
+  
+  <h2  class="page-title hr-bottom">
+    About
+  </h2>
+
+  <p>中南林业科技大学通信工程本科在读，AI应用与Agent开发方向。
+具备OPC能力认证，独立完成三个AI项目的工程化重构与生产化改造。</p>
+
+
+  <div class="sidebar-social">
+    <span class="sr-only">Social</span>
+<ul>
+  
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="https://github.com/wozwiiiii" title="GitHub" class="no-mark-external">
+      <span class="icon-github"></span>
+      <span class="sr-only">GitHub</span>
+    </a>
+  </li>
+
+
+    
+  
+</ul>
+
+  </div>
+</div>
+
+  </aside>
+
+
+  
+
+  
+  
+
+  
+    
+
+
+  <aside class="related mb4" role="complementary">  <h2 class="hr-bottom">Related Posts</h2>  <ul class="related-posts">                  <li class="h4">  <a href="/blog/2026/08/26/lingxi-voice/" class="flip-title"><span>灵犀语伴 — AI语音应用</span></a>      <time class="faded fine">2026年3月-4月</time>  </li>                        <li class="h4">  <a href="/blog/2026/08/24/emergency-rag/" class="flip-title"><span>应急RAG问答系统</span></a>      <time class="faded fine">2026年6月-7月</time>  </li>            </ul></aside>
+
+  
+
+  
+  
+
+  
+    
+
+  
+
+
+  
+<footer class="content" role="contentinfo">
+  <hr/>
+  
+    <p><small class="copyright">© 2026. All rights reserved.
+</small></p>
+  
+  
+    <p><small>Powered by <a class="external" href="https://hydejack.com/">Hydejack</a> v<span id="_version">9.2.1</span></small></p>
+  <hr class="sr-only"/>
+</footer>
+
+
+</main>
+
+  <hy-drawer
+  id="_drawer"
+  class=""
+  side="left"
+  threshold="10"
+  noscroll
+  
+>
+  <header id="_sidebar" class="sidebar" role="banner">
+    
+
+
+
+
+<div class="sidebar-bg sidebar-overlay" style="background-color:rgb(25,55,71);background-image:url(/assets/img/sidebar-bg.jpg)"></div>
+
+    <div class="sidebar-sticky">
+  <div class="sidebar-about">
+    
+    <a class="sidebar-title" href="/"><h2 class="h1">wozwiiiii</h2></a>
+    
+    
+      <p class="">
+        中南林业科技大学通信工程在读，AI应用与Agent开发方向。
+
+      </p>
+    
+  </div>
+
+  <nav class="sidebar-nav heading" role="navigation">
+    <span class="sr-only">Navigation:</span>
+<ul>
+  
+    
+      
+      <li>
+        <a
+          id="_drawer--opened"
+          href="/"
+          class="sidebar-nav-item "
+          
+        >
+          首页
+        </a>
+      </li>
+    
+      
+      <li>
+        <a
+          
+          href="/blog/"
+          class="sidebar-nav-item "
+          
+        >
+          博客
+        </a>
+      </li>
+    
+      
+      <li>
+        <a
+          
+          href="/projects/"
+          class="sidebar-nav-item "
+          
+        >
+          项目
+        </a>
+      </li>
+    
+      
+      <li>
+        <a
+          
+          href="/about/"
+          class="sidebar-nav-item "
+          
+        >
+          关于
+        </a>
+      </li>
+    
+  
+</ul>
+
+  </nav>
+
+  
+  <div class="sidebar-social">
+    <span class="sr-only">Social</span>
+<ul>
+  
+    
+      
+
+
+
+  
+
+  
+  
+  
+  
+
+  
+
+  
+
+  <li>
+    <a href="https://github.com/wozwiiiii" title="GitHub" class="no-mark-external">
+      <span class="icon-github"></span>
+      <span class="sr-only">GitHub</span>
+    </a>
+  </li>
+
+
+    
+  
+</ul>
+
+  </div>
+</div>
+  </header>
+</hy-drawer>
+<hr class="sr-only" hidden />
+
+</hy-push-state>
+
+
+  <!--[if gt IE 10]><!---->
+  <script nomodule>(()=>{var t,n=document.createElement("script");!("noModule"in n)&&"onbeforeload"in n&&(t=!1,document.addEventListener("beforeload",function(e){if(e.target===n)t=!0;else if(!e.target.hasAttribute("nomodule")||!t)return;e.preventDefault()},!0),n.type="module",n.src=".",document.head.appendChild(n),n.remove())})();
+</script>
+  <script src="/assets/js/hydejack-9.2.1.js" type="module"></script>
+  <script src="/assets/js/LEGACY-hydejack-9.2.1.js" nomodule defer></script>
+  
+
+  
+
+<!--<![endif]-->
+  
+
+
+
+<div hidden>
+  
+  <h2 class="sr-only">Templates:</h2>
+
+  <template id="_animation-template">
+  <div class="animation-main fixed-top">
+    <nav id="breadcrumbs" class="screen-only"><ul>
+  
+  
+</ul></nav>
+    <div class="content">
+      <div class="page"></div>
+    </div>
+  </div>
+</template>
+
+  <template id="_loading-template">
+  <div class="loading nav-btn fr">
+    <span class="sr-only">Loading…</span>
+    <span class="icon-cog"></span>
+  </div>
+</template>
+
+  <template id="_error-template">
+  <div class="page">
+    <h1 class="page-title">Error</h1>
+    
+    
+    <p class="lead">
+      Sorry, an error occurred while loading: <a class="this-link" href=""></a>.
+    </p>
+  </div>
+</template>
+
+  <template id="_permalink-template">
+  <a href="#" class="permalink">
+    <span class="sr-only">Permalink</span>
+    <span class="content-hash"></span>
+  </a>
+</template>
+
+  
+    <template id="_dark-mode-template">
+  <button id="_dark-mode" class="nav-btn no-hover" >
+    <span class="sr-only">Dark Mode</span>
+    <span class="icon-brightness-contrast"></span>
+  </button>
+</template>
+
+  
+</div>
+
+
+</body>
+</html>

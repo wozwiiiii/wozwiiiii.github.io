@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-CN" /><updated>2026-08-27T10:14:29+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">wozwiiiii</title><subtitle>中南林业科技大学通信工程在读，AI应用与Agent开发方向。</subtitle><author><name>陈登基</name><email>2024771609@qq.com</email></author><entry><title type="html">灵犀语伴 — AI语音应用</title><link href="http://localhost:4000/blog/2026/08/26/lingxi-voice/" rel="alternate" type="text/html" title="灵犀语伴 — AI语音应用" /><published>2026-08-26T00:00:00+08:00</published><updated>2026-08-26T00:00:00+08:00</updated><id>http://localhost:4000/blog/2026/08/26/lingxi-voice</id><content type="html" xml:base="http://localhost:4000/blog/2026/08/26/lingxi-voice/"><![CDATA[<h2 id="项目背景">项目背景</h2>
+
+<p>第16届中国大学生服务外包创新创业大赛，赛题A09”基于AI语音合成的教学声音处理软件”，企业命题方锐捷网络。团队”遥遥领先才队”获全国三等奖。</p>
+
+<p>当前代码库为基于大赛文档的<strong>重构版本</strong>。原项目存在文档技术描述与模型实际机制不符、工程化底座缺失等问题，本次重构的核心增量在于工程化与安全加固。</p>
+
+<p><strong>解决什么问题：</strong> 现有AI配音工具（讯飞智作、魔音工坊、ElevenLabs等）只解决”文字变声音”，不深度适配教学场景——不理解PPT结构、不生成教学讲稿、不管理逐页音频、不处理数学/化学符号的语音转译。</p>
+
+<h2 id="架构总览">架构总览</h2>
+
+<p>四进程架构：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>浏览器（Vue 3 SPA）
+  │ HTTPS
+  ▼
+Nginx（静态资源/反向代理，client_max_body_size 20M，limit_req 10r/s）
+  ▼
+FastAPI（port 8000） ──▶ Celery Worker（批量合成/克隆预处理）
+  │                         │ progress → Redis → SSE
+  ├── PostgreSQL 16
+  └── Redis 7
+       │
+       └── TTSProvider 抽象
+            ├── LocalCosyVoiceProvider → WSL2 GPU推理服务（RTX 4060, port 8001）
+            └── SiliconFlowProvider    → 云CosyVoice API
+</code></pre></div></div>
+
+<h2 id="技术选型理由">技术选型理由</h2>
+
+<h3 id="cosyvoice2-作为tts模型">CosyVoice2 作为TTS模型</h3>
+
+<p>选CosyVoice2-0.5B而非其他，基于三个可验证的技术事实：</p>
+
+<ol>
+  <li><strong>零样本克隆</strong>：3-10秒参考音频直接prompt，不需要自建声纹提取管线（原项目文档误描述为MFCC/LPC提取，重构时纠正）</li>
+  <li><strong>instruct指令模式</strong>：16种情感 + 11种风格，通过标记控制语气（<code class="language-plaintext highlighter-rouge">[laughter]</code>、<code class="language-plaintext highlighter-rouge">&lt;strong&gt;</code>等），适合教学场景的”严肃课堂”“活泼讲解”切换</li>
+  <li><strong>开源可商用</strong>：Apache-2.0协议，本地部署不依赖外部API</li>
+</ol>
+
+<h3 id="双provider策略模式">双Provider策略模式</h3>
+
+<p><code class="language-plaintext highlighter-rouge">TTSProvider</code>抽象基类 + <code class="language-plaintext highlighter-rouge">LocalCosyVoiceProvider</code>（本地GPU）与<code class="language-plaintext highlighter-rouge">SiliconFlowProvider</code>（云API）双实现。这不是简单的”本地+云”切换，而是基于以下工程考量：</p>
+
+<ul>
+  <li><strong>能力探测</strong>：<code class="language-plaintext highlighter-rouge">ProviderCapabilities</code>驱动前端动态显示/隐藏控件——本地版情感选择器16项，云版只有8项，前端按实际能力渲染</li>
+  <li><strong>降级链</strong>：<code class="language-plaintext highlighter-rouge">TTS_PROVIDER_CHAIN</code>配置决定调用顺序，链路首个非熔断Provider被选中</li>
+  <li><strong>熔断器</strong>：CLOSED→连续失败≥5→OPEN（30s快速失败）→HALF_OPEN（探测<code class="language-plaintext highlighter-rouge">/health</code>）→成功CLOSED/失败OPEN，状态存Redis多实例共享</li>
+</ul>
+
+<h3 id="sse替代websocket">SSE替代WebSocket</h3>
+
+<p>任务进度是单向推送（后端→前端）。SSE满足需求且更简单——自动重连、Nginx无特殊配置、走HTTP/1.1。WebSocket的双向能力在此场景是过度设计。</p>
+
+<h2 id="核心数据流">核心数据流</h2>
+
+<h3 id="文本语音含llm预处理管线">文本→语音（含LLM预处理管线）</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>用户输入文本 + 选择声音 + 设置参数
+  ▼
+Pydantic schema校验（字数/声音ID/参数范围/Provider能力匹配）
+  ▼
+规则引擎第一遍（多音字词典精确匹配 + 数学/化学符号正则检测）
+  ├── 不需要LLM → 跳过，直接用规则结果
+  └── 需要LLM → LLM Pipeline:
+       ① 符号上下文感知转译（∂在微积分→"偏导数"，拓扑学→"边界算子"）
+       ② 多音字歧义消解
+       ③ CosyVoice2标记生成
+       ④ Pydantic Schema校验 → 失败重试（最多2次）→ 仍失败则规则兜底
+  ▼
+Redis缓存检查 key=hash(文本+声音ID+参数+provider)
+  ├── 命中 → 直接返回
+  └── 未命中 → SETNX互斥锁
+       ├── 未获得锁 → 自旋等待（max 500ms）→ 再查缓存
+       └── 获得锁 → Provider合成 → 写缓存（TTL=24h±随机）→ 释放锁
+</code></pre></div></div>
+
+<p><strong>为什么规则兜底 + LLM裁决而非纯LLM：</strong> 规则引擎快、确定、零成本，LLM解决规则搞不定的符号和歧义。纯文本直接跳过LLM省钱省延迟。输出经Pydantic Schema校验+重试，不是裸调API。</p>
+
+<h3 id="课件合成m2">课件合成（M2）</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>用户上传PPTX → 安全链（ZIP magic bytes + defusedxml + 文件名UUID化）
+  → python-pptx逐页提取文本 → 批量INSERT slides
+  → 用户编辑 → 点"开始合成"
+  → Celery task: synthesize_courseware.delay(project_id)
+
+Worker内:
+  → SELECT slides ORDER BY slide_index
+  → async with Semaphore(3):  # 背压控制
+       asyncio.gather(*[_synthesize_slide(s) for s in slides],
+                       return_exceptions=True)  # 单页失败不阻塞批次
+  → 每页: 选文本→LLM管线→缓存检查→Provider.synthesize()
+  → Redis INCR progress → SSE推送 → 浏览器进度条
+  → 完成: ZIP打包（manifest.json + 逐页MP3 + 原始PPTX）
+</code></pre></div></div>
+
+<h2 id="防护措施">防护措施</h2>
+
+<h3 id="纵深防御11层">纵深防御（11层）</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>层</th>
+      <th>措施</th>
+      <th>拦截什么</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TLS</td>
+      <td>HTTPS强制，TLS 1.2+，HSTS</td>
+      <td>中间人攻击</td>
+    </tr>
+    <tr>
+      <td>CSP</td>
+      <td><code class="language-plaintext highlighter-rouge">default-src 'self'; media-src 'self' blob:</code></td>
+      <td>XSS</td>
+    </tr>
+    <tr>
+      <td>Cookie</td>
+      <td>SameSite=Lax; HttpOnly; Secure</td>
+      <td>CSRF</td>
+    </tr>
+    <tr>
+      <td>Nginx</td>
+      <td>20M body limit，10r/s burst=5</td>
+      <td>DoS</td>
+    </tr>
+    <tr>
+      <td>SQLi</td>
+      <td>SQLAlchemy 2.0参数化100%</td>
+      <td>SQL注入</td>
+    </tr>
+    <tr>
+      <td>文件名</td>
+      <td>sanitize→UUID重命名</td>
+      <td>路径穿越</td>
+    </tr>
+    <tr>
+      <td>魔数</td>
+      <td>读文件头4字节</td>
+      <td>Content-Type伪造</td>
+    </tr>
+    <tr>
+      <td>密码</td>
+      <td>bcrypt(cost=12)</td>
+      <td>明文泄露</td>
+    </tr>
+    <tr>
+      <td>XXE</td>
+      <td>defusedxml替代lxml，禁DTD</td>
+      <td>PPTX内XXE注入</td>
+    </tr>
+    <tr>
+      <td>ZIP炸弹</td>
+      <td><code class="language-plaintext highlighter-rouge">sum(file_size) &lt;= 100MB</code></td>
+      <td>Billion Laughs</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="克隆接口的多层限流">克隆接口的多层限流</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>层</th>
+      <th>维度</th>
+      <th>窗口</th>
+      <th>限额</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nginx</td>
+      <td>IP</td>
+      <td>1s</td>
+      <td>10r burst 5</td>
+    </tr>
+    <tr>
+      <td>API用户</td>
+      <td>user_id</td>
+      <td>1min</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>TTS接口</td>
+      <td>user_id</td>
+      <td>1min</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>TTS接口</td>
+      <td>user_id</td>
+      <td>1day</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td><strong>克隆接口</strong></td>
+      <td><strong>user_id</strong></td>
+      <td><strong>1day</strong></td>
+      <td><strong>10（存DB）</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>克隆日限额存在DB而非Redis的原因：攻击者可用不同IP注册多账号刷克隆获取某人声纹数据——Redis flush清空后计数器归零，DB记录不可绕过。且同一<code class="language-plaintext highlighter-rouge">audio_sha256</code>禁止不同用户重复克隆。</p>
+
+<h3 id="缓存层韧性">缓存层韧性</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>问题</th>
+      <th>对策</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>缓存穿透</td>
+      <td>Pydantic校验无效voice_id直接400；空结果也缓存(TTL=60s)</td>
+    </tr>
+    <tr>
+      <td>缓存击穿</td>
+      <td>SETNX互斥锁 + 自旋等待(max 500ms)</td>
+    </tr>
+    <tr>
+      <td>缓存雪崩</td>
+      <td>TTL随机化(base + random(0, 7200s))</td>
+    </tr>
+    <tr>
+      <td>内存溢出</td>
+      <td><code class="language-plaintext highlighter-rouge">allkeys-lru</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="数据模型6张表">数据模型（6张表）</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">users</code>：UUID主键、email/username唯一、role、quota_override(JSONB)</li>
+  <li><code class="language-plaintext highlighter-rouge">voices</code>：type(preset/cloned)、provider、provider_metadata(JSONB)、reference_audio_path、consent_id</li>
+  <li><code class="language-plaintext highlighter-rouge">consents</code>：audio_sha256、purpose、agreed_at、expires_at、revoked_at（声纹授权审计记录）</li>
+  <li><code class="language-plaintext highlighter-rouge">synthesis_tasks</code>：input_text、llm_processed_text、params(JSONB)、status、cached、provider_used</li>
+  <li><code class="language-plaintext highlighter-rouge">courseware_projects</code>：title、original_pptx_path、status(状态机)、progress</li>
+  <li><code class="language-plaintext highlighter-rouge">courseware_slides</code>：slide_index、original_text、edited_text、llm_processed_text、audio_path</li>
+</ul>
+
+<h2 id="测试与完成状态">测试与完成状态</h2>
+
+<p><strong>Python后端（主版本）：</strong> 96个pytest通过（fakeredis + SQLite in-memory，无需真实服务），M1+M2全部完工，安全审计Critical清零，22项API契约检查通过。</p>
+
+<p><strong>Java后端（参考实现）：</strong> 123个JUnit通过，含MCP Server模块（<code class="language-plaintext highlighter-rouge">@Tool</code>暴露TTS/克隆为Agent可调用工具），功能为参考实现未做端到端联调。</p>
+
+<p><strong>前端：</strong> Vue 3 + TypeScript，vue-tsc类型检查通过，6个页面视图。</p>
+
+<p><strong>部署：</strong> Docker Compose五服务编排，GitHub Actions CI。</p>
+
+<h2 id="如实声明的已知限制">如实声明的已知限制</h2>
+
+<ol>
+  <li><strong>单GPU串行推理</strong>：RTX 4060仅够单请求推理，线上靠云API并发，本地Celery排队串行</li>
+  <li><strong>流式延迟</strong>：官方150ms首包在A100上，4060上RTF约0.3-1.0</li>
+  <li><strong>WSL2/Docker硬依赖</strong>：CosyVoice2官方只保Linux</li>
+  <li><strong>Circuit Breaker未接入调用点</strong>：<code class="language-plaintext highlighter-rouge">record_failure</code>/<code class="language-plaintext highlighter-rouge">record_success</code>未在生产代码调用，Java版通过<code class="language-plaintext highlighter-rouge">@CircuitBreaker</code>注解解决此遗留</li>
+</ol>
+
+<h2 id="github">GitHub</h2>
+
+<p><a href="https://github.com/wozwiiiii/lingxi-voice.git">wozwiiiii/lingxi-voice</a></p>]]></content><author><name>陈登基</name><email>2024771609@qq.com</email></author><category term="项目" /><category term="AI语音" /><category term="TTS" /><category term="FastAPI" /><category term="CosyVoice2" /><category term="Vue3" /><summary type="html"><![CDATA[面向教师与教培机构的AI语音课件制作系统，基于服务外包大赛全国三等奖项目重构]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20voice%20technology%20PPT%20courseware%20generation%20clean%20blue%20tech%20illustration&amp;image_size=landscape_16_9" /><media:content medium="image" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20voice%20technology%20PPT%20courseware%20generation%20clean%20blue%20tech%20illustration&amp;image_size=landscape_16_9" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">deepsearch — 深度探索系统</title><link href="http://localhost:4000/blog/2026/08/25/deepsearch-agents/" rel="alternate" type="text/html" title="deepsearch — 深度探索系统" /><published>2026-08-25T00:00:00+08:00</published><updated>2026-08-25T00:00:00+08:00</updated><id>http://localhost:4000/blog/2026/08/25/deepsearch-agents</id><content type="html" xml:base="http://localhost:4000/blog/2026/08/25/deepsearch-agents/"><![CDATA[<h2 id="项目背景">项目背景</h2>
+
+<p><strong>诚实表述：</strong> 本仓库基于开源教学项目deepsearch-agents（MIT协议，原始教学代码来自<a href="https://github.com/didilili/deepsearch-agents">didilili/deepsearch-agents</a>）。正确定位是：<strong>基于开源教学项目做了生产化改造</strong>，覆盖路径穿越、SQL任意执行、横向越权、无认证、租户串台、无限流等14类问题，129个回归测试，而不是把整个项目说成从零自研。</p>
+
+<p><strong>解决什么问题：</strong> 把”用户自然语言问题”调度到多来源工具（公开网络、MySQL业务库、RAGFlow知识库、文件工具）协同检索，并实时回传执行进度，最终以Markdown/PDF交付报告。</p>
+
+<h2 id="架构总览">架构总览</h2>
+
+<p>五层架构：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 用户交互层    React + Vite前端 | HTTP命令通道 | WebSocket进度通道
+                    ↓ HTTP发命令，WebSocket回进度
+2. API与实时通信层  FastAPI server.py | /api/task + active_tasks | ConnectionManager
+                    ↓ 只做轻量调度，长耗时任务交给后台协程
+3. DeepAgents调度层  main_agent.py: create_deep_agent + run_deep_agent(astream)
+                    ContextVar: thread_id / session_dir | monitor.py
+                    ↓ 主智能体判断信息缺口，子智能体只处理自己信息来源
+4. 子智能体与工具层  网络搜索(Tavily) | 数据库查询(MySQL) | RAGFlow助手 | 文件交付工具
+                    ↓
+5. 数据源与产物层  公开网页 | MySQL业务库 | RAGFlow知识库 | output: MD/PDF
+</code></pre></div></div>
+
+<h2 id="技术选型理由">技术选型理由</h2>
+
+<h3 id="langgraph-作为agent编排框架">LangGraph 作为Agent编排框架</h3>
+
+<p>框架层面采用LangGraph，可由<code class="language-plaintext highlighter-rouge">langgraph-checkpoint-sqlite</code>包名与<code class="language-plaintext highlighter-rouge">AsyncSqliteSaver</code>类名直接佐证。</p>
+
+<p><strong>选型理由</strong>（文档原文：”当初选可替换saver的回报”）：checkpointer接口可替换是选型时的重要考量。单机用SQLite，多副本时换Postgres（<code class="language-plaintext highlighter-rouge">langgraph-checkpoint-postgres</code>），接口不变只换saver实现，业务代码零改动。</p>
+
+<h3 id="arq而非celery做任务队列">ARQ而非Celery做任务队列</h3>
+
+<p>项目强调<code class="language-plaintext highlighter-rouge">run_deep_agent</code>为async协程，并以此为理由选用ARQ——ARQ原生async、与FastAPI同事件循环模型；Celery的同步模型会让async Agent退化成线程池调用，丢掉并发优势。Temporal引入整套server过重，同样排除。</p>
+
+<h3 id="fail-closed而非fail-open">fail-closed而非fail-open</h3>
+
+<p>未配置<code class="language-plaintext highlighter-rouge">API_KEYS</code>时业务接口默认返回<strong>503</strong>（原版fail-open裸奔）；仅显式<code class="language-plaintext highlighter-rouge">ALLOW_DEV_MODE=1</code>才进入开发模式；<code class="language-plaintext highlighter-rouge">ALLOW_DEV_MODE=true</code>等”看似开启”的值一律拒绝。忘配密钥时服务不能照常裸奔。</p>
+
+<h2 id="核心数据流">核心数据流</h2>
+
+<h3 id="主流程">主流程</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>前端提交任务（query 1-10000字符，Pydantic校验）
+  ▼
+X-API-Key认证（compare_digest常数时间比较）→ 绑定Principal.user_id
+  ▼
+slowapi限流（按密钥SHA-256截断16位计配额，401不消耗配额）
+  ▼
+FastAPI后台协程 asyncio.create_task → run_deep_agent
+  ▼
+DeepAgents调度层:
+  → 创建会话目录 output/user_{uid}/session_{tid}
+  → ContextVar透传 thread_id / session_dir
+  → astream异步流式执行，monitor上报 assistant/tool/result 三类事件
+  → WebSocket实时回传进度
+  ▼
+Markdown/PDF交付（文件接口改为thread_id驱动，服务端拼接路径）
+</code></pre></div></div>
+
+<h3 id="harness层面设计">Harness层面设计</h3>
+
+<p><strong>惰性初始化：</strong> Agent改为惰性初始化（首次任务时建库建连接并缓存复用），避免模块导入即占连接。服务重启后同一复合thread_id自动恢复历史消息与执行状态。</p>
+
+<p><strong>模型调用上限中间件：</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ModelCallLimitMiddleware</span><span class="p">(</span><span class="n">run_limit</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">thread_limit</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">exit_behavior</span><span class="o">=</span><span class="sh">"</span><span class="s">error</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>单次任务最多80次模型调用、单会话（跨重启累计）最多300次</li>
+  <li>超限抛异常由<code class="language-plaintext highlighter-rouge">run_deep_agent</code>捕获并经monitor告知前端</li>
+  <li><strong>诚实声明边界</strong>：是调用次数上限，不是token预算；token级熔断仍是待做项</li>
+</ul>
+
+<p><strong>Checkpointer持久化：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>阶段</th>
+      <th>实现</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>原版</td>
+      <td><code class="language-plaintext highlighter-rouge">InMemorySaver</code></td>
+      <td>重启丢全部上下文</td>
+    </tr>
+    <tr>
+      <td>已落地</td>
+      <td><code class="language-plaintext highlighter-rouge">AsyncSqliteSaver</code></td>
+      <td>持久化到checkpoints.sqlite3</td>
+    </tr>
+    <tr>
+      <td>设计稿</td>
+      <td><code class="language-plaintext highlighter-rouge">AsyncPostgresSaver</code></td>
+      <td>多副本水平扩容，接口不变</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>多租户隔离根：</strong> 复合键<code class="language-plaintext highlighter-rouge">{user_id}-{thread_id}</code>是task表主键、WS路由键、checkpointer thread_id的统一根。user_id限纯小写字母数字保证复合键无歧义。文档原话：”复合键不动……这是多租户隔离的根，改它等于推倒重来。”</p>
+
+<h2 id="防护措施14类问题修复">防护措施（14类问题修复）</h2>
+
+<h3 id="路径穿越防御apputilspath_utilspy重写">路径穿越防御（<code class="language-plaintext highlighter-rouge">app/utils/path_utils.py</code>重写）</h3>
+
+<ul>
+  <li>所有路径解析结果强制<strong>收容（containment）</strong>在<code class="language-plaintext highlighter-rouge">session_dir</code>内，越界抛<code class="language-plaintext highlighter-rouge">PathEscapeError</code></li>
+  <li>绝对路径（Windows盘符/Unix根路径）一律拒绝</li>
+  <li>三个文件工具捕获<code class="language-plaintext highlighter-rouge">PathEscapeError</code>返回<strong>引导性错误文本，模型可自我纠正重试，不中断Agent循环</strong></li>
+  <li>验证：<code class="language-plaintext highlighter-rouge">tests/test_path_safety.py</code> 14个用例</li>
+</ul>
+
+<h3 id="sql只读三件套apptoolsdb_toolspy">SQL只读三件套（<code class="language-plaintext highlighter-rouge">app/tools/db_tools.py</code>）</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. assert_readonly_sql: 剥离注释后仅放行SELECT/SHOW/DESCRIBE/EXPLAIN
+#    多语句(stacked queries)、INTO OUTFILE/DUMPFILE、LOAD_FILE、DML/DDL一律拒绝
+#    被拒SQL不建立数据库连接，直接返回错误文本
+</span>
+<span class="c1"># 2. validate_table_name: 表名白名单 ^[A-Za-z0-9_]{1,64}$ + 反引号包裹
+</span>
+<span class="c1"># 3. enforce_select_limit: sqlglot解析SELECT，无LIMIT自动追加LIMIT 1000
+#    UNION等集合操作也补LIMIT；解析失败抛SQLSafetyError，不执行
+</span></code></pre></div></div>
+
+<p>验证：<code class="language-plaintext highlighter-rouge">tests/test_sql_guard.py</code> 45个用例。</p>
+
+<p><strong>账号层兜底</strong>：MySQL只读账号<code class="language-plaintext highlighter-rouge">deepsearch_ro@%</code>，仅<code class="language-plaintext highlighter-rouge">GRANT SELECT</code>。文档原文：”工具层校验是第一道防线，数据库最小权限是第二道。”</p>
+
+<h3 id="横向越权--多租户隔离">横向越权 + 多租户隔离</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/api/files</code>、<code class="language-plaintext highlighter-rouge">/api/download</code>原接受任意绝对路径 → 改为thread_id驱动，服务端拼接路径</li>
+  <li>目录结构改为<code class="language-plaintext highlighter-rouge">output/user_{uid}/session_{tid}</code>，天然隔离会话</li>
+</ul>
+
+<h3 id="限流slowapi">限流（slowapi）</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">POST /api/task</code>限10/min，<code class="language-plaintext highlighter-rouge">POST /api/upload</code>限30/min</li>
+  <li>限流键按<strong>密钥SHA-256截断16位</strong>（明文不入限流状态与日志）</li>
+  <li>认证先于限流执行，401请求不消耗配额</li>
+</ul>
+
+<h3 id="代码审查修复四项">代码审查修复四项</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>问题</th>
+      <th>修复</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>R-1</td>
+      <td>上传无总量上限</td>
+      <td>请求级100MB + 文件数20，写盘前拒绝</td>
+    </tr>
+    <tr>
+      <td>R-2</td>
+      <td>多文件非原子</td>
+      <td><code class="language-plaintext highlighter-rouge">_rollback_saved</code>：任一失败清理已写入全部文件</td>
+    </tr>
+    <tr>
+      <td>R-3</td>
+      <td>非ASCII密钥触发TypeError→500</td>
+      <td>非ASCII密钥直接401</td>
+    </tr>
+    <tr>
+      <td>R-4</td>
+      <td>测试写真实运行时目录</td>
+      <td>autouse fixture指向tmp_path</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="错误返回原版本机制汇总">错误返回原版本机制汇总</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>场景</th>
+      <th>行为</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>路径越界</td>
+      <td>抛PathEscapeError，工具层捕获返回引导性文本，Agent自纠重试</td>
+    </tr>
+    <tr>
+      <td>SQL校验失败</td>
+      <td>不建数据库连接，直接返回错误文本</td>
+    </tr>
+    <tr>
+      <td>SQL解析失败</td>
+      <td>SQLSafetyError，不执行</td>
+    </tr>
+    <tr>
+      <td>模型调用超限</td>
+      <td>exit_behavior=”error”抛异常，run_deep_agent捕获经monitor告知前端</td>
+    </tr>
+    <tr>
+      <td>多文件上传失败</td>
+      <td>_rollback_saved清理已写入全部文件</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="测试与完成状态">测试与完成状态</h2>
+
+<p>129个回归测试，6秒全绿（mock掉<code class="language-plaintext highlighter-rouge">run_deep_agent</code>，纯打校验逻辑，不需要任何真实服务）：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>测试文件</th>
+      <th>用例数</th>
+      <th>覆盖领域</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>test_path_safety.py</td>
+      <td>14</td>
+      <td>路径穿越防御</td>
+    </tr>
+    <tr>
+      <td>test_sql_guard.py</td>
+      <td>45</td>
+      <td>SQL只读 + 自动LIMIT + UNION</td>
+    </tr>
+    <tr>
+      <td>test_api_security.py</td>
+      <td>31</td>
+      <td>上传安全 + 会话隔离 + 回滚</td>
+    </tr>
+    <tr>
+      <td>test_auth.py</td>
+      <td>28</td>
+      <td>API Key认证 + fail-closed + 非ASCII</td>
+    </tr>
+    <tr>
+      <td>test_rate_limit.py</td>
+      <td>7</td>
+      <td>slowapi限流</td>
+    </tr>
+    <tr>
+      <td>test_checkpointer.py</td>
+      <td>4</td>
+      <td>SQLite持久化 + middleware透传</td>
+    </tr>
+    <tr>
+      <td><strong>合计</strong></td>
+      <td><strong>129</strong></td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>完成状态：</strong> 三批生产化改造（安全加固→认证与状态→限流与成本）+ 一次正式代码审查修复全部落地。</p>
+
+<h2 id="如实声明的已知限制">如实声明的已知限制</h2>
+
+<ol>
+  <li><strong>任务队列</strong>：当前<code class="language-plaintext highlighter-rouge">asyncio.create_task</code>进程内执行，重启即丢。ARQ+Redis+Postgres设计稿已写但未实现</li>
+  <li><strong>可观测性</strong>：现状只有<code class="language-plaintext highlighter-rouge">print</code>，没有结构化日志/指标/告警</li>
+  <li><strong>CI/CD</strong>：<code class="language-plaintext highlighter-rouge">.github/workflows/ci.yml</code>已创建文件但未提交；后端无Dockerfile</li>
+  <li><strong>内容安全</strong>：ClamAV、模型输出审核、提示注入防护未做</li>
+  <li><strong>认证升级</strong>：API Key适合个人/小团队，对外多用户需换OIDC+JWT</li>
+  <li><strong>token级预算熔断</strong>：当前只有调用次数上限，无token累计熔断</li>
+</ol>
+
+<h2 id="github">GitHub</h2>
+
+<p><a href="https://github.com/wozwiiiii/hello-agents-my-build.git">wozwiiiii/hello-agents-my-build</a></p>]]></content><author><name>陈登基</name><email>2024771609@qq.com</email></author><category term="项目" /><category term="Agent" /><category term="LangGraph" /><category term="安全" /><category term="FastAPI" /><category term="生产化改造" /><summary type="html"><![CDATA[基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&amp;image_size=landscape_16_9" /><media:content medium="image" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&amp;image_size=landscape_16_9" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">应急RAG问答系统</title><link href="http://localhost:4000/blog/2026/08/24/emergency-rag/" rel="alternate" type="text/html" title="应急RAG问答系统" /><published>2026-08-24T00:00:00+08:00</published><updated>2026-08-24T00:00:00+08:00</updated><id>http://localhost:4000/blog/2026/08/24/emergency-rag</id><content type="html" xml:base="http://localhost:4000/blog/2026/08/24/emergency-rag/"><![CDATA[<h2 id="项目背景">项目背景</h2>
+
+<p>Datawhale秋训营”应急管理安全生产智能问答”赛题。数据为赛题官方提供，系统是赛题的工程化实现而非生产部署产品。</p>
+
+<p><strong>解决什么问题：</strong> 危化品应急管理场景下，管理人员需同时面对两类数据——17张危化企业Excel表（企业基础、仓库、8类特殊作业、SDS、工艺等）和22篇应急领域文档（GB30871-2022特殊作业规范、安全生产治本攻坚三年行动方案等）。传统”人工查数据+解读政策”存在监管难、响应慢瓶颈。</p>
+
+<h2 id="我负责的部分">我负责的部分</h2>
+
+<p>从竞赛原型<code class="language-plaintext highlighter-rouge">advance/</code>到生产版<code class="language-plaintext highlighter-rouge">app/</code>的<strong>全套工程化改造</strong>，核心差异：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>维度</th>
+      <th>advance原型</th>
+      <th>生产版（我的改造）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>代码执行</td>
+      <td><code class="language-plaintext highlighter-rouge">exec()</code>直接执行+注入<code class="language-plaintext highlighter-rouge">os</code>模块</td>
+      <td>AST白名单+子进程沙箱+超时强杀</td>
+    </tr>
+    <tr>
+      <td>索引</td>
+      <td>Chroma内存客户端每次重建</td>
+      <td>PersistentClient+构建分离+embedding缓存</td>
+    </tr>
+    <tr>
+      <td>表格数据</td>
+      <td>每次循环<code class="language-plaintext highlighter-rouge">pd.read_excel</code></td>
+      <td>parquet预转换+沙箱内惰性加载</td>
+    </tr>
+    <tr>
+      <td>服务形态</td>
+      <td>脚本批处理answer.csv</td>
+      <td>FastAPI REST+认证+限流+探针</td>
+    </tr>
+    <tr>
+      <td>错误处理</td>
+      <td>print继续</td>
+      <td>统一异常体系+JSON错误体+request_id</td>
+    </tr>
+    <tr>
+      <td>意图路由</td>
+      <td>每题一个全量ReAct循环</td>
+      <td>LLM单次分类+启发式降级</td>
+    </tr>
+    <tr>
+      <td>质量</td>
+      <td>无度量</td>
+      <td>18题评测集+A/B报告</td>
+    </tr>
+    <tr>
+      <td>测试</td>
+      <td>无</td>
+      <td>64项（含26条沙箱攻击载荷）</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="技术架构">技术架构</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Client →[X-API-Key]→ FastAPI(认证+限流+request_id) → IntentRouter
+  ├─ text   → Retriever(Chroma持久化, top-k+阈值) → Generator(拒答/引用来源)
+  ├─ table  → TabularAgent(两阶段: LLM选表→ReAct分析) → Sandbox(三层防护) → Parquet
+  └─ hybrid → 并行执行text+table → 融合LLM → 统一答案
+</code></pre></div></div>
+
+<h2 id="文本rag全链路apprag-4个文件">文本RAG全链路（<code class="language-plaintext highlighter-rouge">app/rag/</code> 4个文件）</h2>
+
+<h3 id="文档分块chunkingpy">文档分块（<code class="language-plaintext highlighter-rouge">chunking.py</code>）</h3>
+
+<ul>
+  <li>支持.docx/.pdf</li>
+  <li>按Heading样式识别标题层级（1-4级），维护标题栈生成<code class="language-plaintext highlighter-rouge">heading_path</code>（如”某文件 &gt; 第一章 &gt; 1.2节”）</li>
+  <li>超长section按段落二次切分，单段超1200字符硬切，相邻块保留150字符overlap</li>
+  <li>docx表格按行拼接为正文保留结构</li>
+</ul>
+
+<h3 id="索引构建ingestpy">索引构建（<code class="language-plaintext highlighter-rouge">ingest.py</code>）</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>extract_file → chunk_blocks → embed_documents → Chroma持久化
+</code></pre></div></div>
+<ul>
+  <li>chunk_id由source+heading+index+text md5生成</li>
+  <li>collection使用<code class="language-plaintext highlighter-rouge">hnsw:space: cosine</code></li>
+  <li>单文件解析失败不阻断整体构建（记入<code class="language-plaintext highlighter-rouge">skipped</code>）</li>
+  <li>embedding磁盘缓存（sqlite3 + WAL，key=md5(model:text)），增量构建近乎免费</li>
+</ul>
+
+<h3 id="检索retrieverpy">检索（<code class="language-plaintext highlighter-rouge">retriever.py</code>）</h3>
+
+<ul>
+  <li>Chroma <code class="language-plaintext highlighter-rouge">PersistentClient</code>只读加载</li>
+  <li>top-k召回（默认k=6）+ 相似度阈值过滤（默认0.35）</li>
+  <li><strong>低于阈值的全部丢弃，全空时触发拒答而非编造</strong>——应急安全场景硬要求</li>
+</ul>
+
+<h3 id="答案生成generatorpy">答案生成（<code class="language-plaintext highlighter-rouge">generator.py</code>）</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">generate_answer</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">llm</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">:</span>                      <span class="c1"># 无证据直接拒答，不调LLM
+</span>        <span class="k">return</span> <span class="n">REFUSAL_ANSWER</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">True</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="nf">_build_context</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>    <span class="c1"># [1] 来源: xx | heading \n text
+</span>    <span class="n">msg</span> <span class="o">=</span> <span class="n">llm</span><span class="p">.</span><span class="nf">chat_safe</span><span class="p">([...],</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">content</span> <span class="ow">or</span> <span class="sh">""</span><span class="p">).</span><span class="nf">strip</span><span class="p">()[:</span><span class="mi">60</span><span class="p">]</span>
+    <span class="n">model_refused</span> <span class="o">=</span> <span class="nf">any</span><span class="p">(</span><span class="n">m</span> <span class="ow">in</span> <span class="n">head</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_REFUSAL_MARKERS</span><span class="p">)</span>  <span class="c1"># 仅前60字判定
+</span>    <span class="k">return</span> <span class="n">answer</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">model_refused</span>
+</code></pre></div></div>
+
+<p>system prompt强约束”只依据参考资料、末尾列引用编号[1][2]、资料不足明确说明”。</p>
+
+<h2 id="表格rag两阶段text-to-pandas-reactapptabularagentpy">表格RAG：两阶段Text-to-Pandas ReAct（<code class="language-plaintext highlighter-rouge">app/tabular/agent.py</code>）</h2>
+
+<h3 id="为什么用经典react文本协议而非function-calling">为什么用经典ReAct文本协议而非function calling</h3>
+
+<p><strong>真实实测依据</strong>：硅基流动Qwen2.5-7B的<code class="language-plaintext highlighter-rouge">tool_calls</code>输出为不可解析伪JSON（乱码+重复token，单次26s+）；改文本协议后完全可控。</p>
+
+<h3 id="为什么两阶段先选表再react">为什么两阶段（先选表再ReAct）</h3>
+
+<p>17张表全量schema约2.3万token，7B模型必超时。阶段一LLM选表（输出JSON，temperature=0，max_tokens=200）后，阶段二只为所选表生成紧凑画像，prompt缩小一个数量级。</p>
+
+<h3 id="自愈闭环">自愈闭环</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for i in range(1, max_iterations + 1):  # 最多8轮
+    msg = llm.chat_safe(messages, temperature=0.1)
+    m = _ACTION_RE.search(text)  # 正则解析 Thought/Action/Action Input
+    if action == "finish": return TabularAnswer(...)
+    observation = run_code(action_input)  # 沙箱执行
+    messages.append({"role":"user","content": f"Observation:\n{observation}"})  # 错误回填自愈
+</code></pre></div></div>
+
+<p>沙箱执行错误traceback回填下一轮messages，LLM据此修正代码。最后一轮强制finish不再执行代码。</p>
+
+<h2 id="三层沙箱核心差异点">三层沙箱（核心差异点）</h2>
+
+<p>威胁模型：LLM生成代码可能被提示注入操纵，目标是任意文件读写/命令执行/secret读取/数据外传。<strong>黑名单方案被实测绕过</strong>（<code class="language-plaintext highlighter-rouge">np.memmap</code>任意文件读、<code class="language-plaintext highlighter-rouge">pd.io.common.os</code>赋值别名链读secret + <code class="language-plaintext highlighter-rouge">execve</code>命令执行），故改为能力白名单为主的三层防护。</p>
+
+<h3 id="第一层ast静态校验validate_code">第一层：AST静态校验（<code class="language-plaintext highlighter-rouge">validate_code</code>）</h3>
+
+<ul>
+  <li>禁止<code class="language-plaintext highlighter-rouge">Import/ImportFrom/Global/Nonlocal</code></li>
+  <li>禁止一切下划线属性（阻断<code class="language-plaintext highlighter-rouge">__class__/__globals__/__import__</code>逃逸链）</li>
+  <li>属性黑名单：<code class="language-plaintext highlighter-rouge">system/execve族/memmap/read_*/to_csv/urlopen</code>等60+原语</li>
+  <li><strong>连续属性链深≤2</strong>（挡<code class="language-plaintext highlighter-rouge">pd.io.common.os.environ</code>直链，正常pandas惯用法至多两级）</li>
+  <li>名字白名单：<code class="language-plaintext highlighter-rouge">pd/np/dfs</code> + 纯函数内建 + 异常类 + 已赋值变量</li>
+</ul>
+
+<h3 id="第二层运行时白名单命名空间">第二层：运行时白名单命名空间</h3>
+
+<p>子进程中的<code class="language-plaintext highlighter-rouge">pd</code>/<code class="language-plaintext highlighter-rouge">np</code><strong>不是模块本体</strong>，是curated <code class="language-plaintext highlighter-rouge">SimpleNamespace</code>：</p>
+<ul>
+  <li>pd仅暴露DataFrame/Series/merge/concat/pivot_table等</li>
+  <li>np仅暴露array/mean/linalg(norm/inv/det)等</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">pd.io</code>/<code class="language-plaintext highlighter-rouge">np.memmap</code>/<code class="language-plaintext highlighter-rouge">np.core</code>物理不存在</strong>，赋值别名绕过必然AttributeError</li>
+  <li><code class="language-plaintext highlighter-rouge">__builtins__</code>同为白名单字典；即使AST层被完全绕过，可达能力面仍是封闭集合</li>
+</ul>
+
+<h3 id="第三层进程隔离与资源限制">第三层：进程隔离与资源限制</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">multiprocessing.get_context("spawn")</code>独立子进程，daemon=True</li>
+  <li>超时强杀（默认30s，<code class="language-plaintext highlighter-rouge">proc.terminate()</code> + <code class="language-plaintext highlighter-rouge">join(5)</code>）</li>
+  <li>输出截断（默认4000字符），表数据惰性加载</li>
+</ul>
+
+<p><strong>验证</strong>：26条攻击载荷（动态导入、dunder逃逸、numpy文件原语、赋值别名链、进程执行族）全部拦截；7条合法pandas/numpy分析正常执行；死循环被超时终止。</p>
+
+<h2 id="意图路由apporchestratorrouterpy">意图路由（<code class="language-plaintext highlighter-rouge">app/orchestrator/router.py</code>）</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_llm</span><span class="p">.</span><span class="nf">chat_safe</span><span class="p">([...],</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="nf">loads</span><span class="p">(</span><span class="n">content</span><span class="p">).</span><span class="nf">get</span><span class="p">(</span><span class="sh">"</span><span class="s">route</span><span class="sh">"</span><span class="p">,</span><span class="sh">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">VALID_ROUTES</span><span class="p">:</span> <span class="k">return</span> <span class="n">route</span>
+        <span class="k">raise</span> <span class="nc">ValueError</span><span class="p">(...)</span>
+    <span class="k">except</span> <span class="nb">Exception</span><span class="p">:</span>
+        <span class="n">fallback</span> <span class="o">=</span> <span class="nf">_heuristic</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>  <span class="c1"># 关键词启发式，永不抛异常
+</span>        <span class="k">return</span> <span class="n">fallback</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">_TABLE_HINTS</code>含”数量/多少/统计/列出/占比”；<code class="language-plaintext highlighter-rouge">_TEXT_HINTS</code>含”规定/要求/如何/标准/规范/依据”；同时命中走hybrid。</p>
+
+<h2 id="hybrid容错融合apporchestratorpipelinepy">hybrid容错融合（<code class="language-plaintext highlighter-rouge">app/orchestrator/pipeline.py</code>）</h2>
+
+<ul>
+  <li>唯一异步入口<code class="language-plaintext highlighter-rouge">answer()</code>，单问题120s硬上限</li>
+  <li>hybrid用<code class="language-plaintext highlighter-rouge">asyncio.gather</code>并行执行text+table双路，单路失败不阻断（survivor标<code class="language-plaintext highlighter-rouge">degraded</code>）</li>
+  <li>融合策略：两路都成功时调融合LLM（数据部分以表格路为准、政策部分以文本路补充）</li>
+  <li>融合失败再降级用表格路答案</li>
+  <li>出现拒答时以非拒答路为准</li>
+</ul>
+
+<h2 id="服务化与工程化">服务化与工程化</h2>
+
+<ul>
+  <li><strong>request_id中间件</strong>：每请求生成12位hex，通过contextvars注入日志上下文</li>
+  <li><strong>探针分离</strong>：<code class="language-plaintext highlighter-rouge">/health</code>（liveness）+ <code class="language-plaintext highlighter-rouge">/ready</code>（readiness，检查chroma.sqlite3、parquet、LLM key）</li>
+  <li><strong>LLM客户端收敛</strong>：所有业务模块只允许通过统一客户端访问LLM；tenacity超时+指数退避重试</li>
+  <li><strong>Docker多阶段构建</strong>：builder层装依赖，运行层<code class="language-plaintext highlighter-rouge">python:3.12-slim</code> + 非root用户</li>
+  <li><strong>索引构建与服务分离</strong>：<code class="language-plaintext highlighter-rouge">scripts/build_index.py</code>独立CLI，解决竞赛原型”每次重启浪费数分钟与token”的核心缺陷</li>
+</ul>
+
+<h2 id="评测结果qwen25-72b2026-08-17">评测结果（Qwen2.5-72B，2026-08-17）</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>类别</th>
+      <th>题数</th>
+      <th>平均分</th>
+      <th>路由正确率</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>text</td>
+      <td>8</td>
+      <td>0.733</td>
+      <td>8/8</td>
+    </tr>
+    <tr>
+      <td>table</td>
+      <td>6</td>
+      <td>0.850</td>
+      <td>6/6</td>
+    </tr>
+    <tr>
+      <td>hybrid</td>
+      <td>2</td>
+      <td>0.850</td>
+      <td>2/2</td>
+    </tr>
+    <tr>
+      <td>refuse</td>
+      <td>2</td>
+      <td>0 → 1.000（修复后复测）</td>
+      <td>不适用</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>意图路由18/18全对。首轮主要失分：refuse类模型已文本拒答但<code class="language-plaintext highlighter-rouge">refused</code>标志未置位（已修复，复测满分）；个别text题检索未命中目标文档。</p>
+
+<h2 id="如实声明的已知限制">如实声明的已知限制</h2>
+
+<ol>
+  <li><strong>文件解析限制</strong>：.wps与老.doc无法解析，22篇中15篇可解析，生成633分块</li>
+  <li><strong>限流状态在进程内存</strong>：多实例需换Redis</li>
+  <li><strong>评测集为自建近似</strong>：18题不代表官方真实得分</li>
+  <li><strong>Windows沙箱开销</strong>：spawn有约1s开销</li>
+  <li><strong>威胁模型边界</strong>：子进程仍以容器用户权限运行，对抗国家级攻击者需叠加OS级降权（seccomp/AppArmor）</li>
+  <li><strong>纯向量检索无BM25混合</strong>：个别text题未命中目标文档，候选优化方向：rerank、HyDE、按法规名构建元数据过滤</li>
+</ol>
+
+<h2 id="github">GitHub</h2>
+
+<p><a href="https://github.com/wozwiiiii/all-in-rag-myself-new.git">wozwiiiii/all-in-rag-myself-new</a></p>]]></content><author><name>陈登基</name><email>2024771609@qq.com</email></author><category term="项目" /><category term="RAG" /><category term="ReAct Agent" /><category term="FastAPI" /><category term="沙箱安全" /><category term="Chroma" /><summary type="html"><![CDATA[危化品应急管理场景，RAG + Text-to-Pandas Agent双路问答，三层沙箱防护LLM生成代码]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=emergency%20management%20AI%20Q%26A%20system%20RAG%20retrieval%20clean%20green%20tech%20illustration&amp;image_size=landscape_16_9" /><media:content medium="image" url="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=emergency%20management%20AI%20Q%26A%20system%20RAG%20retrieval%20clean%20green%20tech%20illustration&amp;image_size=landscape_16_9" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

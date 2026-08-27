@@ -1,12 +1,56 @@
-lang:                  en
-title:                 Hydejack
-copyright:             © 2024. All rights reserved.
+lang:                  zh-CN
+title:                 wozwiiiii
+copyright:             © 2026. All rights reserved.
 
 accent_image:          /assets/img/sidebar-bg.jpg
 accent_color:          rgb(79,177,186)
 theme_color:           rgb(25,55,71)
 
 google_fonts:          false
+
+# 站点级配置
+url:                   https://wozwiiiii.github.io
+baseurl:               ""
+description:           中南林业科技大学通信工程在读，AI应用与Agent开发方向。
+
+# 插件
+plugins:               [jekyll-include-cache, jekyll-paginate, jekyll-seo-tag, jekyll-feed, jekyll-avatar, jekyll-optional-front-matter, jekyll-readme-index, jekyll-relative-links, jekyll-titles-from-headings]
+
+# 博客分页
+paginate:              5
+paginate_path:         /blog/page:num/
+
+# 作者信息
+author:
+  name:                陈登基
+  email:               2024771609@qq.com
+  social:
+    github:            wozwiiiii
+
+# 侧边栏导航菜单
+menu:
+  - title:             首页
+    url:               /
+  - title:             博客
+    url:               /blog/
+  - title:             项目
+    url:               /projects/
+  - title:             关于
+    url:               /about/
+
+# 侧边栏底部链接
+sidebar:
+  - title:             GitHub
+    url:               https://github.com/wozwiiiii
+
+# 默认布局
+defaults:
+  - scope:
+      path:            "_posts"
+      type:            posts
+    values:
+      layout:          post
+      author:          wozwiiiii
 
 hydejack:
   post_addons:         [about, newsletter, related, random, comments]
@@ -57,6 +101,7 @@ relative_links:
   collections:         true
 
 titles_from_headings:
+  enabled:             false
   strip_title:         true
   collections:         true
 
