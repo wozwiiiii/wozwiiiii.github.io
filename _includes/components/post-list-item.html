@@ -3,5 +3,9 @@
 
 <li class="h4">
   <a href="{{ post.url | relative_url }}" class="flip-title"><span>{{ post.title }}</span></a>
-  <time class="faded fine" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date:format }}</time>
+  {% if post.period %}
+    <time class="faded fine">{{ post.period }}</time>
+  {% else %}
+    <time class="faded fine" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date:format }}</time>
+  {% endif %}
 </li>

@@ -1,0 +1,11 @@
+home: 首页
+posts: 博客
+pages: 页面
+not_found:
+  title: "404: 页面未找到"
+  message: 您访问的页面不存在或已被移除。
+  home_link: 返回首页
+redirecting: 正在跳转…
+date_formats:
+  list_group_by: "%Y"
+  list_entry: "%m月%d日"
