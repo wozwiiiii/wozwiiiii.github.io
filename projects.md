@@ -52,7 +52,7 @@ permalink: /projects/
 
 **结果：** 40 个文件、+3649 行工程增量，5 个 commit 交付；129 个单元测试 6 秒跑完，不依赖真实 LLM 和数据库；另写了任务队列分布式化的三阶段方案（ARQ + Postgres + Redis pub/sub），还没实现，文档里标了待做。
 
-**GitHub：** [hello-agents-my-build](https://github.com/wozwiiiii/deepsearch-agent-try.git) · **拆解：** [改造拆解](/blog/2026/08/25/deepsearch-agents/)
+**GitHub：** [deepsearch-agent-try](https://github.com/wozwiiiii/deepsearch-agent-try.git) · **拆解：** [改造拆解](/blog/2026/08/25/deepsearch-agents/)
 
 ---
 
