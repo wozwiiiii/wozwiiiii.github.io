@@ -1,0 +1,990 @@
+---
+layout: null
+permalink: /
+---
+
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'zh-CN' }}" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>努力的小橙 · AI 应用与 Agent 开发</title>
+<meta name="description" content="中南林业科技大学通信工程 2027 届。独立完成三个 AI 项目的工程化改造：AI 语音课件应用、多智能体深度研究系统、应急管理 RAG 问答系统。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231B1A17'/><text x='50' y='68' font-size='54' font-family='sans-serif' font-weight='700' fill='%23DE7049' text-anchor='middle'>橙</text></svg>">
+
+<style>
+/* ============================================================
+   首页 · 移植自 spec/homepage-preview-v4-final.html（v4 定稿）
+   自包含 layout，不依赖主题 CSS
+   ============================================================ */
+:root{
+  --paper:#F7F6F2;
+  --card:#FFFFFF;
+  --card-2:#FAF8F4;
+  --ink-900:#1B1A17; --ink-800:#2C2A25; --ink-700:#46443D; --ink-600:#5C5A52;
+  --ink-500:#75726A; --ink-400:#94918A; --ink-300:#B5B2AA;
+  --ink-200:#D8D5CC; --ink-100:#E8E5DD;
+
+  --accent:#A8381B;
+  --accent-2:#C9632B;
+  --amber:#D98B3A;
+  --accent-l:#F5E9E4;
+
+  --grad:linear-gradient(100deg,#A8381B 0%,#C9632B 52%,#D98B3A 100%);
+
+  --r-xs:6px; --r-sm:9px; --r-md:14px; --r-lg:20px; --r-xl:28px;
+  --sh-1:0 1px 2px rgba(27,26,23,.05),0 1px 3px rgba(27,26,23,.04);
+  --sh-2:0 6px 18px rgba(27,26,23,.07),0 2px 5px rgba(27,26,23,.04);
+  --sh-3:0 22px 48px rgba(27,26,23,.10),0 6px 14px rgba(27,26,23,.05);
+
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:1120px; --nav-h:64px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+[data-theme="dark"]{
+  --paper:#131211; --card:#1B1A18; --card-2:#201F1C;
+  --ink-900:#EFEDE6; --ink-800:#DCD9D0; --ink-700:#B8B5AC; --ink-600:#95928A;
+  --ink-500:#7A7770; --ink-400:#5F5C55; --ink-300:#43413B;
+  --ink-200:#302E29; --ink-100:#242220;
+  --accent:#DE7049; --accent-2:#E8975A; --amber:#E8A96B; --accent-l:#241A15;
+  --sh-1:0 1px 2px rgba(0,0,0,.4);
+  --sh-2:0 6px 20px rgba(0,0,0,.45);
+  --sh-3:0 24px 52px rgba(0,0,0,.5);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 18px)}
+body{
+  font-family:var(--sans);background:var(--paper);color:var(--ink-700);
+  line-height:1.78;font-size:16px;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  transition:background .3s var(--ease),color .3s var(--ease);
+}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+::selection{background:var(--accent-l);color:var(--ink-900)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav{
+  position:sticky;top:0;z-index:50;height:var(--nav-h);
+  background:color-mix(in srgb,var(--paper) 80%,transparent);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .25s var(--ease),box-shadow .25s var(--ease);
+}
+.nav.stuck{border-bottom-color:var(--ink-100);box-shadow:var(--sh-1)}
+.nav-in{height:100%;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:baseline;gap:9px;flex-shrink:0;color:var(--ink-900);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.brand .mark{
+  width:26px;height:26px;border-radius:8px;background:var(--grad);color:#fff;
+  display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0;align-self:center;
+  box-shadow:0 3px 10px rgba(168,56,27,.28);
+}
+.nav-links{margin-left:auto;display:flex;gap:3px;align-items:center}
+.nav-links a{color:var(--ink-500);font-size:14.5px;font-weight:550;padding:7px 13px;border-radius:var(--r-sm);transition:all .18s var(--ease)}
+.nav-links a:hover{color:var(--ink-900);background:var(--card-2)}
+.nav-links a.cta{background:var(--ink-900);color:var(--paper);font-weight:600;margin-left:6px}
+.nav-links a.cta:hover{background:var(--accent);color:#fff;transform:translateY(-1px)}
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r-sm);border:1px solid var(--ink-100);
+  background:var(--card);color:var(--ink-500);display:grid;place-items:center;cursor:pointer;
+  transition:all .18s var(--ease);flex-shrink:0;margin-left:6px;
+}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
+.icon-btn svg{width:16px;height:16px}
+.burger{
+  display:none;width:34px;height:34px;border-radius:var(--r-sm);border:1px solid var(--ink-100);
+  background:var(--card);color:var(--ink-700);cursor:pointer;place-items:center;flex-shrink:0;
+}
+.burger svg{width:17px;height:17px}
+.burger[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+@media(max-width:840px){.nav-links a:not(.cta){display:none}.nav-in{gap:12px}.burger{display:grid}}
+
+/* 汉堡面板 */
+.mmenu{
+  position:fixed;left:0;right:0;top:0;z-index:90;background:var(--card);
+  border-bottom:1px solid var(--ink-100);padding:18px 28px 22px;
+  transform:translateY(-104%);opacity:0;transition:transform .2s ease,opacity .2s ease;box-shadow:0 18px 40px rgba(27,26,23,.10);
+}
+.mmenu.open{transform:none;opacity:1}
+.mmenu a{display:block;padding:10px 4px;font-size:15.5px;font-weight:600;color:var(--ink-800);border-bottom:1px solid var(--ink-100)}
+.mmenu a:last-of-type{border-bottom:none}
+.mmenu a.cur{color:var(--accent)}
+.mmenu .m-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400);display:block;margin-top:12px;padding-top:12px;border-top:1px dashed var(--ink-200)}
+.mask{position:fixed;inset:0;z-index:80;background:rgba(19,18,17,.42);opacity:0;pointer-events:none;transition:opacity .2s}
+.mask.show{opacity:1;pointer-events:auto}
+body.locked{overflow:hidden}
+
+/* ============================================================
+   Hero — 漂浮光晕
+   ============================================================ */
+.hero{position:relative;padding:78px 0 70px;overflow:hidden}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(6px)}
+.orb.a{
+  width:620px;height:620px;top:-250px;right:-170px;
+  background:radial-gradient(circle,rgba(201,99,43,.20),rgba(201,99,43,0) 66%);
+  animation:drift-a 26s ease-in-out infinite;
+}
+.orb.b{
+  width:520px;height:520px;bottom:-280px;left:-190px;
+  background:radial-gradient(circle,rgba(168,56,27,.14),rgba(168,56,27,0) 68%);
+  animation:drift-b 32s ease-in-out infinite;
+}
+.orb.c{
+  width:300px;height:300px;top:38%;left:44%;
+  background:radial-gradient(circle,rgba(217,139,58,.10),rgba(217,139,58,0) 70%);
+  animation:drift-a 38s ease-in-out infinite reverse;
+}
+@keyframes drift-a{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(-32px,26px) scale(1.06)}
+  66%{transform:translate(20px,-18px) scale(.96)}
+}
+@keyframes drift-b{
+  0%,100%{transform:translate(0,0) scale(1)}
+  40%{transform:translate(30px,-22px) scale(1.08)}
+  75%{transform:translate(-18px,20px) scale(.95)}
+}
+.hero-in{position:relative;display:grid;grid-template-columns:1.22fr .78fr;gap:50px;align-items:start}
+@media(max-width:920px){.hero-in{grid-template-columns:1fr;gap:34px}.hero{padding:52px 0 46px}}
+
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+  padding:5px 12px;border-radius:999px;background:var(--accent-l);color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+}
+.badge.solid{background:var(--ink-900);color:var(--paper);border-color:var(--ink-900)}
+.badge .pulse{width:6px;height:6px;border-radius:50%;background:#4E9E73;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(78,158,115,.45)}
+  50%{box-shadow:0 0 0 5px rgba(78,158,115,0)}
+}
+
+h1{font-size:clamp(33px,5.1vw,52px);line-height:1.16;letter-spacing:-.025em;font-weight:750;color:var(--ink-900)}
+h1 .grad{
+  background:var(--grad);background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent);
+  animation:shimmer 9s linear infinite;
+}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:200% center}}
+
+.hero-lede{margin-top:20px;font-size:16.5px;line-height:1.85;color:var(--ink-600);max-width:620px}
+.hero-lede b{color:var(--ink-900);font-weight:650}
+.hero-lede .intent{
+  display:block;margin-top:15px;padding:14px 17px;background:var(--card);
+  border-left:3px solid var(--accent);border-radius:0 var(--r-md) var(--r-md) 0;
+  font-size:14.5px;box-shadow:var(--sh-1);
+}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:11px;align-items:center;margin-top:28px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--r-sm);
+  font-size:15px;font-weight:650;border:1.5px solid transparent;cursor:pointer;
+  transition:all .2s var(--ease);font-family:inherit;
+}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--ink-900);color:var(--paper);box-shadow:var(--sh-2)}
+.btn-primary:hover{background:var(--accent);color:#fff;transform:translateY(-2px);box-shadow:0 10px 24px rgba(168,56,27,.28)}
+.btn-ghost{background:var(--card);color:var(--ink-800);border-color:var(--ink-200);box-shadow:var(--sh-1)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.btn-text{background:none;color:var(--ink-500);padding:12px 6px;font-weight:550}
+.btn-text:hover{color:var(--accent)}
+
+/* 档案卡 */
+.pcard{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-lg);
+  padding:26px;box-shadow:var(--sh-3);position:relative;overflow:hidden;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 28px 60px rgba(27,26,23,.14)}
+.pcard::before{content:"";position:absolute;inset:0 0 auto;height:88px;background:linear-gradient(135deg,var(--accent-l),transparent)}
+.pcard::after{
+  content:"";position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,99,43,.16),transparent 70%);
+  animation:drift-a 22s ease-in-out infinite;
+}
+.avatar{
+  position:relative;width:80px;height:80px;border-radius:20px;margin:0 auto 15px;
+  background:var(--grad);display:grid;place-items:center;color:#fff;font-size:34px;font-weight:700;
+  box-shadow:0 8px 22px rgba(168,56,27,.30);border:3px solid var(--card);
+}
+.pcard h3{text-align:center;font-size:19px;color:var(--ink-900);font-weight:700;letter-spacing:-.01em}
+.pcard .role{text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--ink-400);margin-top:4px;letter-spacing:.05em}
+.pcard .divider{height:1px;background:var(--ink-100);margin:17px 0}
+.pcard dl{display:grid;gap:10px;position:relative}
+.pcard .row{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:baseline}
+.pcard dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-400);text-transform:uppercase}
+.pcard dd{font-size:13.5px;color:var(--ink-800);font-weight:550;word-break:break-all}
+.pcard dd .hl{color:var(--accent);font-weight:650}
+.pcard-links{display:flex;gap:8px;margin-top:17px;position:relative}
+.pcard-links a{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;
+  border:1px solid var(--ink-100);border-radius:var(--r-sm);font-size:13px;font-weight:600;
+  color:var(--ink-600);background:var(--card-2);transition:all .18s var(--ease);
+}
+.pcard-links a svg{width:15px;height:15px}
+.pcard-links a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);transform:translateY(-2px)}
+
+/* 数字条 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px;position:relative}
+.stat{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-md);
+  padding:20px 22px;box-shadow:var(--sh-1);transition:transform .26s var(--ease),box-shadow .26s var(--ease),border-color .26s var(--ease);
+}
+.stat:hover{transform:translateY(-4px);box-shadow:var(--sh-2);border-color:color-mix(in srgb,var(--accent) 34%,transparent)}
+.stat .n{font-size:32px;font-weight:750;color:var(--ink-900);letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .n small{font-size:15px;font-weight:650;color:var(--accent);margin-left:3px}
+.stat .l{font-size:13px;color:var(--ink-500);margin-top:6px;line-height:1.6}
+@media(max-width:660px){.stats{grid-template-columns:1fr;gap:10px;margin-top:32px}.stat{padding:16px 18px}}
+
+/* ============================================================
+   Section
+   ============================================================ */
+section.blk{padding:76px 0}
+@media(max-width:768px){section.blk{padding:52px 0}}
+.sec-head{margin-bottom:34px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+}
+.eyebrow::before{content:"";width:18px;height:2px;background:var(--grad);border-radius:2px}
+h2{font-size:clamp(23px,3.1vw,32px);font-weight:750;letter-spacing:-.022em;color:var(--ink-900);line-height:1.28}
+.sec-sub{margin-top:10px;font-size:15.5px;color:var(--ink-500);max-width:620px}
+
+/* ============================================================
+   Overview
+   ============================================================ */
+.pillar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.pillar-grid{grid-template-columns:1fr;max-width:560px}}
+.pillar{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-lg);
+  padding:26px;box-shadow:var(--sh-1);position:relative;overflow:hidden;
+  transition:transform .28s var(--ease),box-shadow .28s var(--ease),border-color .28s var(--ease);
+}
+.pillar:hover{transform:translateY(-5px);box-shadow:var(--sh-3);border-color:color-mix(in srgb,var(--accent) 38%,transparent)}
+.pillar::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);
+  transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);
+}
+.pillar:hover::before{transform:scaleX(1)}
+.pillar .tag{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--accent);
+  background:var(--accent-l);padding:3px 9px;border-radius:var(--r-xs);display:inline-block;font-weight:700;
+}
+.pillar h3{font-size:17.5px;font-weight:700;color:var(--ink-900);margin-top:14px;letter-spacing:-.01em}
+.pillar p{font-size:14.5px;color:var(--ink-600);margin-top:10px;line-height:1.75}
+.pillar p b{color:var(--ink-900);font-weight:650}
+
+/* ============================================================
+   最新一期视频条（数据：_data/videos.yml 精选期 → /works/）
+   ============================================================ */
+.vbar{
+  display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-lg);
+  padding:18px 24px;box-shadow:var(--sh-1);
+  transition:transform .26s var(--ease),box-shadow .26s var(--ease),border-color .26s var(--ease);
+}
+.vbar:hover{transform:translateY(-4px);box-shadow:var(--sh-2);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.v-play{
+  width:44px;height:44px;border-radius:50%;background:var(--grad);color:#fff;
+  display:grid;place-items:center;box-shadow:0 4px 14px rgba(168,56,27,.3);flex-shrink:0;
+}
+.v-play svg{width:16px;height:16px;margin-left:2px}
+.v-info{min-width:0}
+.v-cap{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--accent);display:block}
+.v-t{display:block;font-size:16.5px;font-weight:650;color:var(--ink-900);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v-d{display:block;font-size:12.5px;color:var(--ink-500);margin-top:2px}
+.v-go{font-family:var(--mono);font-size:12.5px;color:var(--accent);flex-shrink:0;white-space:nowrap}
+@media(max-width:640px){
+  .vbar{grid-template-columns:auto 1fr;padding:16px 18px}
+  .v-t{white-space:normal}
+  .v-go{grid-column:2;justify-self:start}
+}
+
+/* ============================================================
+   Skills
+   ============================================================ */
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:980px){.skills-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.skills-grid{grid-template-columns:1fr}}
+.skill{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-md);
+  padding:22px;box-shadow:var(--sh-1);transition:transform .24s var(--ease),box-shadow .24s var(--ease),border-color .24s var(--ease);
+}
+.skill:hover{transform:translateY(-4px);box-shadow:var(--sh-2);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.skill .hd{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.skill .ic{
+  width:32px;height:32px;border-radius:9px;background:var(--accent-l);color:var(--accent);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.skill .ic svg{width:16px;height:16px}
+.skill h3{font-size:15.5px;font-weight:650;color:var(--ink-900)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  font-size:12.5px;padding:4px 11px;border-radius:var(--r-xs);
+  background:var(--card-2);border:1px solid var(--ink-100);color:var(--ink-600);
+  font-weight:550;transition:all .18s var(--ease);
+}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);transform:translateY(-1px)}
+
+/* ============================================================
+   Projects
+   ============================================================ */
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:980px){.proj-grid{grid-template-columns:1fr;max-width:560px}}
+.proj{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-lg);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh-1);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease);
+}
+.proj:hover{transform:translateY(-6px);box-shadow:var(--sh-3);border-color:color-mix(in srgb,var(--accent) 42%,transparent)}
+.proj-cover{
+  height:128px;position:relative;display:grid;place-items:center;
+  border-bottom:1px solid var(--ink-100);overflow:hidden;
+}
+.proj-cover::before{
+  content:"";position:absolute;inset:-30%;
+  background-image:linear-gradient(rgba(255,255,255,.42) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.28) 1px,transparent 1px);
+  background-size:22px 22px;transform:rotate(-6deg) scale(1.1);
+  transition:transform .5s var(--ease);
+}
+.proj:hover .proj-cover::before{transform:rotate(-6deg) scale(1.22) translate(6px,4px)}
+.proj:nth-child(1) .proj-cover{background:linear-gradient(135deg,#F6DCCB,#D98B3A 58%,#A8381B)}
+.proj:nth-child(2) .proj-cover{background:linear-gradient(135deg,#D9DEE4,#7E93AC 55%,#33465C)}
+.proj:nth-child(3) .proj-cover{background:linear-gradient(135deg,#D8EBDC,#79AE8F 55%,#33604A)}
+.proj-cover .tag{
+  position:relative;z-index:1;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.92);color:#2C2A25;
+  box-shadow:0 2px 10px rgba(0,0,0,.16);
+}
+.proj-body{padding:22px;display:flex;flex-direction:column;flex:1}
+.proj-meta{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-400);margin-bottom:8px}
+.proj-meta .idx{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:11.5px;letter-spacing:.08em}
+.proj-meta .when{margin-left:auto;font-family:var(--mono);font-size:11.5px}
+.proj h3{font-size:19px;font-weight:700;color:var(--ink-900);letter-spacing:-.015em;line-height:1.35}
+.proj h3 .slug{display:block;font-family:var(--mono);font-size:11.5px;font-weight:400;color:var(--ink-400);letter-spacing:.05em;margin-top:4px}
+.proj .one{font-size:14px;color:var(--ink-600);margin-top:10px;line-height:1.7;flex:1}
+.metrics{list-style:none;margin:16px 0 0;padding:14px 0 0;border-top:1px dashed var(--ink-200);display:grid;gap:8px}
+.metrics li{display:flex;gap:9px;font-size:13.5px;color:var(--ink-600);align-items:flex-start;line-height:1.5}
+.metrics li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:8px;flex-shrink:0}
+.metrics b{color:var(--ink-900);font-weight:650;font-variant-numeric:tabular-nums}
+.proj-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:15px}
+.proj-chips span{font-size:11.5px;padding:3px 9px;border-radius:var(--r-xs);background:var(--card-2);border:1px solid var(--ink-100);color:var(--ink-500);font-weight:550}
+.proj-links{display:flex;gap:8px;margin-top:17px;padding-top:15px;border-top:1px solid var(--ink-100)}
+.proj-links a{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;
+  border-radius:var(--r-sm);font-size:13.5px;font-weight:600;border:1px solid var(--ink-100);
+  color:var(--ink-600);transition:all .18s var(--ease);
+}
+.proj-links a svg{width:14px;height:14px}
+.proj-links a:hover{border-color:var(--accent);background:var(--accent-l);color:var(--accent);transform:translateY(-1px)}
+.proj-links a.pri{background:var(--ink-900);color:var(--paper);border-color:var(--ink-900)}
+.proj-links a.pri:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ============================================================
+   Posts
+   ============================================================ */
+.posts{display:grid;gap:11px;margin-bottom:24px}
+.post{
+  display:grid;grid-template-columns:100px 1fr auto;gap:20px;align-items:center;
+  background:var(--card);border:1px solid var(--ink-100);border-radius:var(--r-md);
+  padding:18px 22px;box-shadow:var(--sh-1);
+  transition:transform .24s var(--ease),box-shadow .24s var(--ease),border-color .24s var(--ease);
+}
+.post:hover{transform:translateX(5px);border-color:color-mix(in srgb,var(--accent) 42%,transparent);box-shadow:var(--sh-2)}
+.post time{font-family:var(--mono);font-size:12.5px;color:var(--ink-400);white-space:nowrap}
+.post h3{font-size:16.5px;font-weight:650;color:var(--ink-900);line-height:1.4}
+.post p{font-size:13.5px;color:var(--ink-500);margin-top:4px;line-height:1.6}
+.post .arrow{font-family:var(--mono);color:var(--ink-300);transition:all .22s var(--ease)}
+.post:hover .arrow{color:var(--accent);transform:translate(3px,-3px)}
+@media(max-width:720px){.post{grid-template-columns:1fr;gap:7px;padding:16px 18px}.post .arrow{display:none}}
+
+/* ============================================================
+   Contact
+   ============================================================ */
+.contact{
+  background:linear-gradient(150deg,#1B1A17,#2A1D16 70%,#33211A);
+  border-radius:var(--r-xl);padding:52px 48px;color:#fff;position:relative;overflow:hidden;
+}
+[data-theme="dark"] .contact{background:linear-gradient(150deg,#1B1A18,#241A15)}
+.contact::after{
+  content:"";position:absolute;right:-90px;bottom:-150px;width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,99,43,.34),transparent 68%);
+  animation:drift-b 28s ease-in-out infinite;
+}
+@media(max-width:640px){.contact{padding:36px 26px;border-radius:var(--r-lg)}}
+.contact h2{color:#fff}
+.contact .sec-sub{color:#A2948A}
+.contact .eyebrow{color:#E8975A}
+.contact .eyebrow::before{background:var(--grad)}
+.cgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:30px;position:relative}
+@media(max-width:820px){.cgrid{grid-template-columns:1fr}}
+.citem{
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);border-radius:var(--r-md);
+  padding:16px 19px;transition:all .24s var(--ease);
+}
+.citem:hover{background:rgba(255,255,255,.1);border-color:rgba(222,112,73,.5);transform:translateY(-3px)}
+.citem .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:#8E8079;text-transform:uppercase;margin-bottom:5px}
+.citem .v{font-size:15px;font-weight:600;color:#fff;word-break:break-all;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.citem .v a{color:#fff;border-bottom:1px solid rgba(255,255,255,.28);transition:all .18s}
+.citem .v a:hover{color:#E8975A;border-bottom-color:#E8975A}
+.copy{
+  font-family:var(--mono);font-size:10.5px;background:none;border:1px solid rgba(255,255,255,.2);
+  cursor:pointer;color:#A2948A;padding:2px 8px;border-radius:var(--r-xs);
+  letter-spacing:.08em;transition:all .18s var(--ease);
+}
+.copy:hover{color:#E8975A;border-color:#E8975A}
+.copy.done{color:#E8975A;border-color:#E8975A;background:rgba(232,151,90,.14)}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+footer{padding:32px 0 44px;border-top:1px solid var(--ink-100);margin-top:16px}
+.foot-in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-500)}
+.foot-in a{color:var(--ink-500);transition:color .18s}
+.foot-in a:hover{color:var(--accent)}
+.foot-links{display:flex;gap:18px;flex-wrap:wrap}
+
+/* ============================================================
+   Reveal / Toast
+   ============================================================ */
+.reveal{opacity:0;transform:translateY(20px) scale(.995);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.toast{
+  position:fixed;left:50%;bottom:32px;transform:translate(-50%,18px);
+  background:var(--ink-900);color:var(--paper);padding:11px 20px;border-radius:999px;
+  font-size:14px;font-weight:600;box-shadow:var(--sh-3);z-index:100;
+  opacity:0;pointer-events:none;transition:all .28s var(--ease);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+[data-theme="dark"] .toast{background:var(--accent);color:#fff}
+@media(max-width:600px){.toast{left:22px;right:22px;bottom:22px;transform:translateY(18px);text-align:center;border-radius:var(--r-md)}.toast.show{transform:none}}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+  .orb{display:none}
+}
+</style>
+</head>
+
+<body>
+
+{% comment %} ========== 视频条数据：精选期，无 featured 取第一条 ========== {% endcomment %}
+{% assign veps = site.data.videos.episodes | default: "" %}
+{% if veps and veps.size > 0 %}
+  {% assign vfeat = nil %}
+  {% for e in veps %}{% if e.featured %}{% assign vfeat = e %}{% break %}{% endif %}{% endfor %}
+  {% unless vfeat %}{% assign vfeat = veps.first %}{% endunless %}
+{% endif %}
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="{{ '/' | relative_url }}"><span class="mark">橙</span>努力的小橙</a>
+    <div class="nav-links">
+      <a href="{{ '/' | relative_url }}" aria-current="page">首页</a>
+      <a href="{{ '/projects/' | relative_url }}">项目</a>
+      <a href="{{ '/works/' | relative_url }}">视频</a>
+      <a href="{{ '/blog/' | relative_url }}">博客</a>
+      <a href="{{ '/about/' | relative_url }}">关于</a>
+      <a class="cta" href="#contact">联系</a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="mmenu" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" aria-label="切换深色 / 浅色模式" title="切换深色 / 浅色">
+        <svg id="icoMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="icoSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- 汉堡面板（≤840px）：5 个页面链接 + 主题切换 -->
+<nav class="mmenu" id="mmenu" aria-label="站内导航">
+  {% for node in site.menu %}
+    <a href="{{ node.url | relative_url }}"{% if node.url == page.url %} class="cur" aria-current="page"{% endif %}>{{ node.title }}</a>
+  {% endfor %}
+  <span class="m-cap">MENU · 5 PAGES</span>
+</nav>
+<div class="mask" id="mask"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+  <div class="wrap">
+    <div class="hero-in">
+      <div>
+        <div class="badges">
+          <span class="badge solid"><span class="pulse"></span>可实习 · 随时入职</span>
+          <span class="badge">2027 届 · 通信工程</span>
+          <span class="badge">AI 应用 / Agent 开发</span>
+        </div>
+
+        <h1>把 AI 项目<br>做到<span class="grad">敢给别人用</span>的程度</h1>
+
+        <p class="hero-lede">
+          中南林业科技大学通信工程本科在读，在校期间用 AI 工具独立完成过 <b>3 个 AI 项目</b>。我做的事情更接近"收尾"——把能跑起来的 demo 改到能交付：补认证和限流、拆掉危险的默认配置、把测试补齐、把已知限制老老实实写进 README。
+          <span class="intent">
+            <b>求职意向：</b>AI 应用开发 / Agent 开发实习与秋招 · 期望地点 长沙 / 深圳 / 杭州 / 广州
+          </span>
+        </p>
+
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#projects">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            看项目
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/wozwiiiii" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+            GitHub
+          </a>
+          <button class="btn btn-text" data-copy>复制邮箱</button>
+        </div>
+      </div>
+
+      <!-- 档案卡 -->
+      <aside class="pcard">
+        <div class="avatar">橙</div>
+        <h3>努力的小橙</h3>
+        <div class="role">CSUFT · COMM ENG · 2027</div>
+        <div class="divider"></div>
+        <dl>
+          <div class="row"><dt>状态</dt><dd><span class="hl">可实习 · 随时入职</span></dd></div>
+          <div class="row"><dt>方向</dt><dd>AI 应用 / Agent 开发</dd></div>
+          <div class="row"><dt>城市</dt><dd>湖南长沙</dd></div>
+          <div class="row"><dt>期望</dt><dd>长沙 · 深圳 · 杭州 · 广州</dd></div>
+          <div class="row"><dt>主语言</dt><dd>Python</dd></div>
+        </dl>
+        <div class="pcard-links">
+          <a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+            GitHub
+          </a>
+          <a href="#" data-mailto>邮箱</a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 数字条：滚动到视口时计数 -->
+    <div class="stats reveal">
+      <div class="stat">
+        <div class="n"><span class="count" data-to="3">0</span><small>个</small></div>
+        <div class="l">独立完成工程化改造的 AI 项目</div>
+      </div>
+      <div class="stat">
+        <div class="n"><span class="count" data-to="289">0</span><small>项</small></div>
+        <div class="l">自动化测试 · 96 + 129 + 64，均本地可跑</div>
+      </div>
+      <div class="stat">
+        <div class="n"><span class="count" data-to="1">0</span><small>项</small></div>
+        <div class="l">服务外包大赛全国三等奖 · 团队 4 人</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ APPROACH ============ -->
+<section class="blk" id="approach">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Approach</span>
+      <h2>三个项目其实在说同一件事</h2>
+      <p class="sec-sub">不是"用了 AI"，而是都在补一块容易被跳过的工作：让 demo 变成能交付的东西。</p>
+    </div>
+
+    <div class="pillar-grid">
+      <div class="pillar reveal">
+        <span class="tag">SAFETY</span>
+        <h3>默认不信任</h3>
+        <p>在 deepsearch 里修掉 <b>14 类</b>问题——路径穿越、SQL 任意执行、横向越权、无认证、租户串台、无限流。做法是 fail-closed：<b>没配密钥时默认拒绝服务</b>，而不是默认放行。</p>
+      </div>
+      <div class="pillar reveal">
+        <span class="tag">TESTS</span>
+        <h3>敢改代码的底气</h3>
+        <p><b>96 + 129 + 64</b> 项测试，全部不依赖真实 LLM 和数据库，本地几秒跑完。不是为了覆盖率好看，是为了改代码时<b>敢改</b>。</p>
+      </div>
+      <div class="pillar reveal">
+        <span class="tag">HONESTY</span>
+        <h3>边界写清楚</h3>
+        <p>deepsearch 明确定位为"基于开源教学项目的<b>生产化改造</b>"而非自研；应急 RAG 的 .wps 解析不了、限流状态在内存里，都写在 README 里。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section class="blk" id="projects" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Selected Work</span>
+      <h2>三个项目</h2>
+      <p class="sec-sub">下列数字均为项目实测结果，未做归拢或估算。代码与文档全部公开。</p>
+    </div>
+
+    <div class="proj-grid">
+      <article class="proj reveal">
+        <div class="proj-cover"><span class="tag">TTS · 2026.03—04</span></div>
+        <div class="proj-body">
+          <div class="proj-meta"><span class="idx">01</span>灵犀语伴<span class="when">2026.03 — 04</span></div>
+          <h3>AI 语音课件应用<span class="slug">lingxi-voice</span></h3>
+          <p class="one">帮老师把 PPT 变成带配音的有声课件，支持声音克隆和逐页试听。大赛阶段（团队 4 人）负责后端和语音合成；赛后一个人按企业规范完整重构。</p>
+          <ul class="metrics">
+            <li><b>96 个</b>pytest 用例 + <b>22 项</b>接口契约检查</li>
+            <li><b>Docker Compose</b> 五服务一键起</li>
+            <li>大赛<b>全国三等奖</b></li>
+          </ul>
+          <div class="proj-chips">
+            <span>FastAPI</span><span>CosyVoice2</span><span>Celery</span><span>Redis</span><span>PostgreSQL</span><span>Vue 3</span><span>Docker</span>
+          </div>
+          <div class="proj-links">
+            <a class="pri" href="https://github.com/wozwiiiii/lingxi-voice" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+              GitHub
+            </a>
+            <a href="/projects/">项目详情</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-cover"><span class="tag">AGENT · 2026.05—06</span></div>
+        <div class="proj-body">
+          <div class="proj-meta"><span class="idx">02</span>deepsearch<span class="when">2026.05 — 06</span></div>
+          <h3>多智能体深度研究系统<span class="slug">deepsearch-agent-try</span></h3>
+          <p class="one">把一个开源教学版的深度研究 Agent 改造成能放心对外跑的版本。诚实定位：基于开源教学项目的生产化改造，不是从零自研。</p>
+          <ul class="metrics">
+            <li>修 <b>14 类</b>安全与稳定性问题，<b>+3,649 行</b>工程增量</li>
+            <li><b>129 个</b>单元测试 <b>6 秒</b>跑完，不依赖真实 LLM</li>
+            <li><b>5 个</b> commit 交付</li>
+          </ul>
+          <div class="proj-chips">
+            <span>DeepAgents</span><span>LangGraph</span><span>FastAPI</span><span>MySQL</span><span>SQLite</span><span>Tavily</span><span>slowapi</span>
+          </div>
+          <div class="proj-links">
+            <a class="pri" href="https://github.com/wozwiiiii/deepsearch-agent-try" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+              GitHub
+            </a>
+            <a href="/projects/">项目详情</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-cover"><span class="tag">RAG · 2026.06—07</span></div>
+        <div class="proj-body">
+          <div class="proj-meta"><span class="idx">03</span>应急管理问答<span class="when">2026.06 — 07</span></div>
+          <h3>RAG + 表格双路问答系统<span class="slug">all-in-rag-myself-new</span></h3>
+          <p class="one">问政策能查文档回答，问统计能对着 17 张 Excel 写代码算出来。已知限制（.wps 解析不了、限流状态在内存里）都写在 README 里。</p>
+          <ul class="metrics">
+            <li><b>18 题</b>意图路由全对，含测拒答的 refuse 类</li>
+            <li>三层沙箱拦截 <b>30 条</b>攻击载荷，<b>64 项</b>测试通过</li>
+            <li>Prompt 从约 <b>2.3 万 token</b> 压缩（全量塞 7B 超时）</li>
+          </ul>
+          <div class="proj-chips">
+            <span>FastAPI</span><span>Chroma</span><span>pandas</span><span>ReAct</span><span>bge-m3</span><span>Docker</span>
+          </div>
+          <div class="proj-links">
+            <a class="pri" href="https://github.com/wozwiiiii/all-in-rag-myself-new" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+              GitHub
+            </a>
+            <a href="/projects/">项目详情</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% if vfeat %}
+<!-- ============ 最新一期视频条（→ /works/） ============ -->
+<section class="blk" style="padding-top:0">
+  <div class="wrap">
+    <a class="vbar reveal" href="{{ '/works/' | relative_url }}">
+      <span class="v-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="v-info">
+        <span class="v-cap">NOW ON BILIBILI · EP.{{ vfeat.ep }}</span>
+        <span class="v-t">{{ vfeat.title }}</span>
+        <span class="v-d">{{ vfeat.date | date: "%Y.%m.%d" }} · 视频讲解与配套思维导图，免费自取</span>
+      </span>
+      <span class="v-go">全部视频 →</span>
+    </a>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ STACK ============ -->
+<section class="blk" id="stack" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Tech Stack</span>
+      <h2>技术栈</h2>
+      <p class="sec-sub">按职责分组，只列项目里真正用过的。不做百分比——"Python 90%" 这种数字在面试里只会被追问是怎么定义的。</p>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill reveal">
+        <div class="hd">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4zM6 20a6 6 0 0 1 12 0M12 12v4"/></svg></span>
+          <h3>Agent &amp; 大模型</h3>
+        </div>
+        <div class="chips">
+          <span class="chip">DeepAgents</span><span class="chip">LangGraph</span><span class="chip">LangChain</span>
+          <span class="chip">RAG</span><span class="chip">ReAct</span><span class="chip">Function Calling</span>
+          <span class="chip">MCP</span><span class="chip">Prompt Engineering</span><span class="chip">LoRA / SFT</span>
+        </div>
+      </div>
+
+      <div class="skill reveal">
+        <div class="hd">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></span>
+          <h3>后端 &amp; 数据</h3>
+        </div>
+        <div class="chips">
+          <span class="chip">FastAPI</span><span class="chip">Celery</span><span class="chip">Redis</span>
+          <span class="chip">PostgreSQL</span><span class="chip">MySQL</span><span class="chip">ChromaDB</span>
+          <span class="chip">Milvus</span><span class="chip">Qdrant</span><span class="chip">Neo4j</span><span class="chip">SQLite</span>
+        </div>
+      </div>
+
+      <div class="skill reveal">
+        <div class="hd">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <h3>工程化 &amp; 安全</h3>
+        </div>
+        <div class="chips">
+          <span class="chip">Docker / Compose</span><span class="chip">pytest</span><span class="chip">JWT 双 Token</span>
+          <span class="chip">限流熔断</span><span class="chip">代码沙箱隔离</span><span class="chip">CI</span>
+          <span class="chip">SSE</span><span class="chip">结构化日志</span>
+        </div>
+      </div>
+
+      <div class="skill reveal">
+        <div class="hd">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></span>
+          <h3>语言 &amp; 工具</h3>
+        </div>
+        <div class="chips">
+          <span class="chip">Python</span><span class="chip">TypeScript / JS</span><span class="chip">SQL</span>
+          <span class="chip">Vue 3</span><span class="chip">Gradio / Streamlit</span><span class="chip">Git</span>
+          <span class="chip">Linux</span><span class="chip">Claude Code</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POSTS（真实 site.posts 前 3 篇） ============ -->
+<section class="blk" id="posts" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Writing</span>
+      <h2>最近文章</h2>
+      <p class="sec-sub">习惯把项目里踩过的坑和解决办法写成文档。每篇都会写"已知限制"——哪些没做，也一并说清楚。</p>
+    </div>
+
+    <div class="posts">
+      {% for post in site.posts limit:3 %}
+      <a class="post reveal" href="{{ post.url | relative_url }}">
+        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+        <div>
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.description }}</p>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    <a class="btn btn-ghost" href="{{ '/blog/' | relative_url }}">
+      查看全部文章
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="blk" id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="contact reveal">
+      <span class="eyebrow">Get in touch</span>
+      <h2>正在找 AI 应用 / Agent 开发实习，欢迎聊聊</h2>
+      <p class="sec-sub">三个项目的完整代码和技术拆解都在上面，可以直接问细节。聊技术细节比聊简历有意思，也欢迎直接指出我项目里做得不对的地方。</p>
+
+      <div class="cgrid">
+        <div class="citem">
+          <div class="k">Email</div>
+          <div class="v"><span id="mail" data-u="2024771609" data-d="qq.com"></span><button class="copy" id="copyMail" type="button">复制</button></div>
+        </div>
+        <div class="citem">
+          <div class="k">GitHub</div>
+          <div class="v"><a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">github.com/wozwiiiii</a></div>
+        </div>
+        <div class="citem">
+          <div class="k">Location</div>
+          <div class="v">湖南长沙</div>
+        </div>
+        <div class="citem">
+          <div class="k">Target</div>
+          <div class="v">长沙 · 深圳 · 杭州 · 广州</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-in">
+    <div>© 2026 努力的小橙 · Built with Jekyll &amp; Hydejack v9.2.1（GPL-3.0）</div>
+    <div class="foot-links">
+      <a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">GitHub</a>
+      <a href="#" data-mailto>邮箱</a>
+      <a href="#top">回到顶部</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- 主题 ---------- */
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var moon = document.getElementById('icoMoon');
+  var sun  = document.getElementById('icoSun');
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    moon.style.display = dark ? 'none' : 'block';
+    sun.style.display  = dark ? 'block' : 'none';
+    try { localStorage.setItem('theme', t); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('theme'); } catch(e){}
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  apply(saved || (prefersDark ? 'dark' : 'light'));
+  btn.addEventListener('click', function(){
+    apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---------- 邮箱：JS 拼接渲染，源码不留明文 ---------- */
+  var mailEl = document.getElementById('mail');
+  var ADDR = mailEl.getAttribute('data-u') + '@' + mailEl.getAttribute('data-d');
+  var mailA = document.createElement('a');
+  mailA.href = 'mailto:' + ADDR;
+  mailA.textContent = ADDR;
+  mailEl.appendChild(mailA);
+  document.querySelectorAll('[data-mailto]').forEach(function(el){ el.setAttribute('href', 'mailto:' + ADDR); });
+
+  /* ---------- 复制 ---------- */
+  var toast = document.getElementById('toast'), toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 1900);
+  }
+  var copyBtn = document.getElementById('copyMail');
+  function doCopy(){
+    var done = function(){
+      showToast('已复制 ' + ADDR);
+      copyBtn.textContent = '已复制';
+      copyBtn.classList.add('done');
+      setTimeout(function(){ copyBtn.textContent = '复制'; copyBtn.classList.remove('done'); }, 1600);
+    };
+    if (navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(ADDR).then(done, fb);
+    } else { fb(); }
+    function fb(){
+      var ta = document.createElement('textarea');
+      ta.value = ADDR;
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ showToast(ADDR); }
+      document.body.removeChild(ta);
+    }
+  }
+  copyBtn.addEventListener('click', doCopy);
+  document.querySelectorAll('[data-copy]').forEach(function(el){ el.addEventListener('click', doCopy); });
+
+  /* ---------- 数字计数 ---------- */
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function countUp(el){
+    var to = parseInt(el.getAttribute('data-to'), 10);
+    if (reduce){ el.textContent = to; return; }
+    var dur = 1100, start = null;
+    function step(ts){
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * eased);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = to;
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- 滚动揭示 + 计数触发 ---------- */
+  var items = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){ el.classList.add('in'); });
+    document.querySelectorAll('.count').forEach(countUp);
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en, i){
+        if (!en.isIntersecting) return;
+        var el = en.target;
+        setTimeout(function(){ el.classList.add('in'); }, i * 80);
+        el.querySelectorAll('.count').forEach(countUp);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    items.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---------- 导航滚动态 ---------- */
+  var nav = document.getElementById('nav');
+  function onScroll(){ nav.classList.toggle('stuck', window.scrollY > 8); }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---------- 汉堡面板：开合 / Esc / 遮罩 / 锁滚动 ---------- */
+  var burger = document.getElementById('burger');
+  var menu   = document.getElementById('mmenu');
+  var mask   = document.getElementById('mask');
+  function setMenu(open){
+    if (!burger || !menu) return;
+    menu.classList.toggle('open', open);
+    if (mask) mask.classList.toggle('show', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    document.body.classList.toggle('locked', open);
+  }
+  if (burger && menu){
+    burger.addEventListener('click', function(){
+      setMenu(!menu.classList.contains('open'));
+    });
+    if (mask) mask.addEventListener('click', function(){ setMenu(false); });
+    document.addEventListener('keydown', function(ev){
+      if (ev.key === 'Escape' && menu.classList.contains('open')) setMenu(false);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
