@@ -11,7 +11,7 @@ permalink: /projects/
 
 ## 1. 灵犀语伴 — AI 语音课件应用（2026年3月-4月）
 
-![灵犀语伴](https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20voice%20technology%20PPT%20courseware%20generation%20clean%20blue%20tech%20illustration&image_size=landscape_16_9)
+![灵犀语伴](/assets/img/posts/lingxi-voice/cover.jpg)
 
 **技术栈：** Python, FastAPI, CosyVoice2, Celery, Redis, PostgreSQL, Vue 3, Docker
 
@@ -35,7 +35,7 @@ permalink: /projects/
 
 ## 2. deepsearch — 多智能体深度研究系统（2026年5月-6月）
 
-![deepsearch](https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9)
+![deepsearch](/assets/img/posts/deepsearch-agents/cover.jpg)
 
 **技术栈：** DeepAgents, LangGraph, FastAPI, MySQL, SQLite, Tavily, slowapi
 
@@ -58,7 +58,7 @@ permalink: /projects/
 
 ## 3. 应急RAG问答系统（2026年6月-7月）
 
-![应急RAG](https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=emergency%20management%20AI%20Q%26A%20system%20RAG%20retrieval%20clean%20green%20tech%20illustration&image_size=landscape_16_9)
+![应急RAG](/assets/img/posts/emergency-rag/cover.jpg)
 
 **技术栈：** FastAPI, Chroma, pandas, ReAct Agent, bge-m3, Docker
 
