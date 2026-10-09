@@ -7,5 +7,8 @@ vendor
 .ruby-lsp
 *.gem
 
+# Jekyll 构建产物（GitHub Pages 从源码自行构建，_site 不参与部署）
+_site/
+
 #<removed/js>
 #<removed/css>
