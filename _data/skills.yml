@@ -1,0 +1,30 @@
+# Skill 工具数据 · works 页「Skill 工具区」使用（5 条，低频手工维护）
+#
+# 数据来源：github.com/wozwiiiii/my-source 仓库 my_source/my_skill/ 下真实目录
+# tag 用「场景 + 阶段」复合式，取自仓库 README 的需求路由表
+# path 为仓库内路径（works 页链接 = https://github.com/wozwiiiii/my-source/tree/main/<path>）
+
+- name: 经历梳理
+  tag: 简历·入口
+  desc: 把口述的零散经历加工成「动作 + 内容 + 结果」句式的简历表述；缺数据用「XX」占位绝不编造。
+  path: my_source/my_skill/经历梳理
+
+- name: campus-resume-optimizer
+  tag: 简历·单次
+  desc: 校招简历单次优化器。定位「可信度审核员 + 结构化改写员」：四步法完成事实核查、STAR 重构与五项交叉审核。
+  path: my_source/my_skill/campus-resume-optimizer
+
+- name: resume-continuous-optimizer
+  tag: 简历·持续
+  desc: 简历持续维护工作流：多版本定期审核、代码事实核实数字、同步更新；核实后先汇报、确认才修改。
+  path: my_source/my_skill/resume-continuous-optimizer
+
+- name: campus-written-test-generator
+  tag: 笔试
+  desc: 校招笔试题生成器，固定四岗位 × 每岗 3 题；核心资产是固化的四岗位考点库，适合每日定时任务。
+  path: my_source/my_skill/campus-written-test-generator
+
+- name: campus-ai-interview-builder
+  tag: 面试
+  desc: 校招面试题生成器，模拟面试官视角出题：有项目强制锚定真实模块，附【评分要点】与【追问方向】。
+  path: my_source/my_skill/campus-ai-interview-builder

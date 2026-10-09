@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'zh-CN' }}" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title }} · {{ site.title }}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231B1A17'/><text x='50' y='68' font-size='54' font-family='sans-serif' font-weight='700' fill='%23DE7049' text-anchor='middle'>橙</text></svg>">
+<style>
+/* ============================================================
+   works 页 · 方案 B1 局部暗场（纸面走廊 → 墨黑放映厅 → 纸面资料架）
+   自包含 layout，不依赖主题 CSS
+   表面纪律：暖纸 #F7F6F2 = 阅读与下载；墨黑 #131211 = 影像
+   色彩纪律：朱红只上纸面，琥珀只上暗场，B站粉只做平台标识
+   ============================================================ */
+:root{
+  --paper:#F7F6F2; --card:#FFFFFF; --card-2:#FAF8F4;
+  --ink-900:#1B1A17; --ink-800:#2C2A25; --ink-700:#46443D; --ink-600:#5C5A52;
+  --ink-500:#75726A; --ink-400:#94918A; --ink-200:#D8D5CC; --ink-100:#E8E5DD;
+  --accent:#A8381B; --amber:#D98B3A; --accent-l:#F5E9E4;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:1040px;
+}
+/* 主题切换仅作用于纸面；放映厅恒为墨黑 */
+[data-theme="dark"]{
+  --paper:#131211; --card:#1B1A18; --card-2:#201F1C;
+  --ink-900:#EFEDE6; --ink-800:#DCD9D0; --ink-700:#B8B5AC; --ink-600:#95928A;
+  --ink-500:#7A7770; --ink-400:#5F5C55; --ink-200:#302E29; --ink-100:#242220;
+  --accent:#DE7049; --amber:#E8A96B; --accent-l:#241A15;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink-700);line-height:1.78;font-size:16px;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+
+/* ============ 纸面走廊 · Nav（72px，刻意轻） ============ */
+.corridor{background:var(--paper);border-bottom:1px solid var(--ink-100)}
+.corridor-in{height:72px;display:flex;align-items:center;gap:14px}
+.crumb{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--ink-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumb b{color:var(--ink-800);font-weight:600}
+.crumb .sep{margin:0 7px;opacity:.55}
+.back{
+  margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:12px;color:var(--ink-500);
+  border:1px solid var(--ink-200);padding:5px 13px;border-radius:999px;transition:all .18s;
+}
+.back:hover{color:var(--accent);border-color:var(--accent)}
+.theme-btn{
+  width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100);
+  background:var(--card);color:var(--ink-500);display:grid;place-items:center;cursor:pointer;transition:all .18s;
+}
+.theme-btn:hover{color:var(--accent);border-color:var(--accent)}
+.theme-btn svg{width:15px;height:15px}
+.burger{
+  display:none;width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100);
+  background:var(--card);color:var(--ink-700);cursor:pointer;place-items:center;
+}
+.burger svg{width:17px;height:17px}
+.burger[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+
+/* 汉堡面板 */
+.mmenu{
+  position:fixed;left:0;right:0;top:0;z-index:90;background:var(--card);
+  border-bottom:1px solid var(--ink-100);padding:18px 28px 22px;
+  transform:translateY(-104%);opacity:0;transition:transform .2s ease,opacity .2s ease;box-shadow:0 18px 40px rgba(27,26,23,.10);
+}
+.mmenu.open{transform:none;opacity:1}
+.mmenu a{display:block;padding:10px 4px;font-size:15.5px;font-weight:600;color:var(--ink-800);border-bottom:1px solid var(--ink-100)}
+.mmenu a:last-of-type{border-bottom:none}
+.mmenu a.cur{color:var(--accent)}
+.mmenu .m-rows{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px dashed var(--ink-200)}
+.mmenu .m-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400)}
+.mask{position:fixed;inset:0;z-index:80;background:rgba(19,18,17,.42);opacity:0;pointer-events:none;transition:opacity .2s}
+.mask.show{opacity:1;pointer-events:auto}
+body.locked{overflow:hidden}
+@media(max-width:840px){
+  .burger{display:grid}
+  .back{display:none}
+}
+
+/* ============ 墨黑放映厅 ============ */
+.hall{
+  background:linear-gradient(160deg,#131211,#191512);
+  color:#EFEDE6;padding:44px 0 26px;
+}
+.hall-tag{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.16em;color:#E8975A;
+  border:1px solid rgba(232,151,90,.35);padding:4px 11px;border-radius:999px;margin-bottom:14px;
+}
+.hall-tag i{width:6px;height:6px;border-radius:50%;background:#E8975A;box-shadow:0 0 8px rgba(232,151,90,.8)}
+.hall-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.hall-head h1{font-size:20px;font-weight:750;letter-spacing:-.015em;color:#EFEDE6}
+.hall-head .cnt{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#5F5C55;margin-left:auto}
+
+/* 精选大卡 */
+.feat{
+  display:grid;grid-template-columns:440px 1fr;gap:26px;align-items:stretch;position:relative;
+  background:#1B1A18;border:1px solid #2B2A25;border-radius:16px;padding:20px;
+}
+@media(max-width:860px){.feat{grid-template-columns:1fr}}
+.thumb{
+  position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/9;
+  background:linear-gradient(135deg,#2A2420,#161210);border:1px solid #2B2A25;display:grid;place-items:center;
+}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb .ph{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#6E645C}
+.play{
+  position:relative;z-index:2;width:52px;height:52px;border-radius:50%;
+  background:#E8975A;color:#1B140E;display:grid;place-items:center;
+  box-shadow:0 6px 20px rgba(232,151,90,.3);transition:transform .25s;
+}
+.play svg{width:20px;height:20px;margin-left:3px}
+.thumb:hover .play{transform:scale(1.12)}
+.t-dur{
+  position:absolute;right:10px;bottom:10px;z-index:2;font-family:var(--mono);
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;background:rgba(0,0,0,.68);color:#fff;letter-spacing:.04em;
+}
+.t-plat{
+  position:absolute;left:10px;top:10px;z-index:2;font-family:var(--mono);
+  font-size:10.5px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:5px;
+  background:rgba(255,255,255,.1);color:#FB7299;backdrop-filter:blur(4px);
+}
+.f-body{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.f-ep{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:#E8975A;margin-bottom:9px}
+.f-title{font-size:19px;font-weight:700;line-height:1.45;letter-spacing:-.01em;color:#EFEDE6}
+.f-desc{font-size:14px;margin-top:9px;line-height:1.7;color:#8A877E}
+.f-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.f-chips span{
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:999px;
+  border:1px solid #2B2A25;color:#8A877E;background:#201F1C;
+}
+.f-chips span.sk{border-color:rgba(232,151,90,.4);color:#E8975A}
+.f-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px;position:relative;z-index:2}
+.f-btn{
+  display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;
+  padding:8px 15px;border-radius:8px;transition:all .2s;
+}
+.f-btn svg{width:14px;height:14px}
+.f-btn.watch{background:#E8975A;color:#1B140E}
+.f-btn.watch:hover{background:#F0AC74}
+.f-btn.map{background:transparent;color:#B8B5AC;border:1px solid #2B2A25}
+.f-btn.map:hover{border-color:#E8975A;color:#E8975A}
+/* 整行可点的拉伸链接 */
+.cover-link{position:absolute;inset:0;z-index:1;border-radius:16px}
+
+/* EP 列表 */
+.rows{margin-top:22px;border:1px solid #2B2A25;border-radius:14px;background:#1B1A18;padding:0 16px}
+.rows .empty{padding:20px 6px;font-family:var(--mono);font-size:12px;color:#5F5C55}
+.row{
+  display:grid;grid-template-columns:56px 1fr auto auto;gap:16px;align-items:center;
+  padding:14px 4px;border-bottom:1px solid #22211D;position:relative;
+}
+.row:last-child{border-bottom:none}
+.row:hover{background:#241A15}
+.row .r-ep{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:#E8975A}
+.row .r-title{font-size:14.5px;font-weight:600;line-height:1.5;color:#EFEDE6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .r-chips{display:flex;gap:5px;flex-shrink:0}
+.row .r-chips span{
+  font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;
+  border:1px solid #2B2A25;color:#8A877E;
+}
+.row .r-chips span.sk{border-color:rgba(232,151,90,.4);color:#E8975A}
+.row .r-dur{font-family:var(--mono);font-size:12px;color:#5F5C55;text-align:right;white-space:nowrap}
+.row .cover-link{border-radius:0}
+@media(max-width:760px){
+  .row{grid-template-columns:52px 1fr;row-gap:6px}
+  .row .r-title{white-space:normal}
+  .row .r-chips{grid-column:2;justify-content:flex-start}
+  .row .r-dur{grid-column:2;text-align:left}
+}
+
+/* 放映厅底栏 */
+.hall-foot{
+  display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;
+  margin-top:24px;padding:16px 6px 0;border-top:1px solid #2B2A25;
+}
+.hall-foot .all{font-family:var(--mono);font-size:12px;color:#E8975A;position:relative;z-index:2}
+.hall-foot .all:hover{color:#F0AC74}
+.hall-foot .note{font-family:var(--mono);font-size:11px;color:#5F5C55}
+
+/* ============ 过渡带 ============ */
+.band{padding:52px 0 8px}
+.band .line{width:44px;height:3px;background:#A8381B;border-radius:2px}
+.band .lab{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--ink-900);margin-top:12px}
+.band .lab small{font-weight:400;color:var(--ink-400);letter-spacing:.08em;margin-left:10px}
+
+/* ============ 纸面资料架 ============ */
+.shelf{padding:18px 0 26px}
+.shelf-note{font-family:var(--mono);font-size:11px;color:var(--ink-400);margin:2px 0 20px}
+.repo-chip{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;
+  color:var(--ink-600);background:var(--card);border:1px solid var(--ink-200);
+  padding:7px 14px;border-radius:999px;margin-bottom:26px;transition:all .18s;
+}
+.repo-chip svg{width:14px;height:14px}
+.repo-chip:hover{border-color:var(--accent);color:var(--accent)}
+.group{margin-bottom:30px}
+.g-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:9px;border-bottom:1px solid var(--ink-100);margin-bottom:13px}
+.g-head .path{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent);word-break:break-all}
+.g-head .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-400);margin-left:auto;flex-shrink:0}
+.pdf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pdf-card{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:12px;padding:14px 16px;
+  box-shadow:0 1px 2px rgba(27,26,23,.05);transition:all .2s;display:flex;flex-direction:column;gap:4px;
+}
+.pdf-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 40%,transparent);box-shadow:0 8px 20px rgba(27,26,23,.08)}
+.pdf-card .name{font-size:13.5px;font-weight:600;color:var(--ink-900);line-height:1.5;word-break:break-all}
+.pdf-card .meta{font-family:var(--mono);font-size:11px;color:var(--ink-400)}
+.pdf-card .dl{
+  font-family:var(--mono);font-size:11.5px;color:var(--accent);margin-top:5px;
+  display:inline-flex;align-items:center;gap:5px;width:fit-content;
+}
+.pdf-card .dl:hover{text-decoration:underline}
+.pdf-card .dl svg{width:12px;height:12px}
+
+.skill-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:9px;border-bottom:1px solid var(--ink-100);margin:38px 0 16px}
+.skill-head .path{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent)}
+.skill-head .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-400);margin-left:auto;flex-shrink:0}
+.skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:920px){.skill-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.skill-grid{grid-template-columns:1fr}}
+.skill-card{
+  background:var(--card);border:1px solid var(--ink-100);border-radius:14px;padding:18px;
+  box-shadow:0 1px 2px rgba(27,26,23,.05);transition:all .22s;display:flex;flex-direction:column;
+}
+.skill-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 40%,transparent);box-shadow:0 10px 24px rgba(27,26,23,.08)}
+.skill-card .tag{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;
+  color:var(--amber);background:var(--accent-l);padding:3px 9px;border-radius:6px;width:fit-content;
+}
+.skill-card h3{font-size:15px;font-weight:650;color:var(--ink-900);margin-top:10px;word-break:break-all}
+.skill-card p{font-size:13px;color:var(--ink-600);line-height:1.7;margin-top:7px;flex:1}
+.skill-card .lnk{
+  font-family:var(--mono);font-size:11.5px;color:var(--accent);margin-top:13px;display:inline-flex;align-items:center;gap:5px;width:fit-content;
+}
+.skill-card .lnk:hover{text-decoration:underline}
+.skill-card .lnk svg{width:12px;height:12px}
+
+/* ============ 页脚 ============ */
+footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
+.foot-in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-500)}
+.foot-links{display:flex;gap:18px;flex-wrap:wrap}
+.foot-links a{color:var(--ink-500);transition:color .18s}
+.foot-links a:hover{color:var(--accent)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+{% comment %} ================= 数据准备 ================= {% endcomment %}
+{% assign videos = site.data.videos %}
+{% assign eps = videos.episodes | default: "" %}
+{% assign feat = nil %}
+{% for e in eps %}{% if e.featured %}{% assign feat = e %}{% break %}{% endif %}{% endfor %}
+{% unless feat %}{% assign feat = eps.first %}{% endunless %}
+{% assign feat_url = feat.url %}
+{% if feat_url == blank or feat_url == empty %}{% assign feat_url = videos.channel %}{% endif %}
+{% comment %} 期日期 → 仓库目录名（10月7日 格式），plus:0 去前导零 {% endcomment %}
+{% assign fparts = feat.date | date: "%Y-%m-%d" | split: "-" %}
+{% assign fm = fparts[1] | plus: 0 %}{% assign fd = fparts[2] | plus: 0 %}
+{% assign feat_dir_name = fm | append: "月" | append: fd | append: "日" %}
+{% assign repo_base = "https://github.com/wozwiiiii/my-source/tree/main" %}
+{% assign km_enc = "知识点汇总" | url_encode %}
+
+<!-- ============ 纸面走廊 · Nav ============ -->
+<header class="corridor">
+  <div class="wrap corridor-in">
+    <span class="crumb"><b>wozwiiiii.github.io</b><span class="sep">/</span>作品<span class="sep">/</span>{{ page.title }}</span>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="mmenu" aria-label="打开菜单">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <button class="theme-btn" id="themeBtn" aria-label="切换深色 / 浅色模式" title="切换深色 / 浅色">
+      <svg id="icoMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="icoSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <a class="back" href="{{ '/' | relative_url }}">↑ 返回首页</a>
+  </div>
+</header>
+
+<!-- 汉堡面板（≤840px） -->
+<nav class="mmenu" id="mmenu" aria-label="站内导航">
+  {% assign cur = page.url %}
+  {% for node in site.menu %}
+    <a href="{{ node.url | relative_url }}"{% if node.url == cur %} class="cur" aria-current="page"{% endif %}>{{ node.title }}</a>
+  {% endfor %}
+  <div class="m-rows">
+    <span class="m-cap">MENU · 5 PAGES</span>
+    <a class="back" style="margin-left:0" href="{{ '/' | relative_url }}">↑ 返回首页</a>
+  </div>
+</nav>
+<div class="mask" id="mask"></div>
+
+<!-- ============ 墨黑放映厅 ============ -->
+<section class="hall">
+  <div class="wrap">
+    <span class="hall-tag"><i></i>NOW SHOWING · 放映厅</span>
+    <div class="hall-head">
+      <h1>作品 · 视频</h1>
+      <span class="cnt">{{ eps.size }} EPISODES · 持续更新</span>
+    </div>
+
+    {% if feat %}
+    <article class="feat">
+      <div class="thumb">
+        {% if feat.cover and feat.cover != "" %}
+          <img src="{{ feat.cover | relative_url }}" alt="第 {{ feat.ep }} 期封面" loading="lazy">
+        {% else %}
+          <span class="ph">封面图 · 16:9</span>
+        {% endif %}
+        <span class="t-plat">BILIBILI</span>
+        <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        {% if feat.duration and feat.duration != "" %}<span class="t-dur">{{ feat.duration }}</span>{% endif %}
+      </div>
+      <div class="f-body">
+        <div class="f-ep">EP.{{ feat.ep }} · {{ feat.date | date: "%Y.%m.%d" }}</div>
+        <h2 class="f-title">{{ feat.title }}</h2>
+        <p class="f-desc">{{ feat.desc }}</p>
+        {% if feat.pdf or feat.skill %}
+        <div class="f-chips">
+          {% for p in feat.pdf %}<span>{{ p }}</span>{% endfor %}
+          {% if feat.skill %}<span class="sk">SKILL · {{ feat.skill }}</span>{% endif %}
+        </div>
+        {% endif %}
+        <div class="f-actions">
+          <a class="f-btn watch" href="{{ feat_url }}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>在 B 站观看
+          </a>
+          {% if feat.pdf %}
+          <a class="f-btn map" href="{{ repo_base }}/{{ km_enc }}/{{ feat_dir_name | url_encode }}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>思维导图目录
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      <a class="cover-link" href="{{ feat_url }}" target="_blank" rel="noopener" aria-label="在 B 站观看第 {{ feat.ep }} 期：{{ feat.title }}"></a>
+    </article>
+    {% endif %}
+
+    <div class="rows">
+      {% assign rest = "" | split: "," %}
+      {% for e in eps %}{% unless e == feat %}{% assign rest = rest | push: e %}{% endunless %}{% endfor %}
+      {% if rest.size == 0 %}
+        <p class="empty">更多期数更新中。</p>
+      {% else %}
+        {% for e in rest %}
+        {% assign e_url = e.url %}
+        {% if e_url == blank or e_url == empty %}{% assign e_url = videos.channel %}{% endif %}
+        <div class="row">
+          <span class="r-ep">EP.{{ e.ep }}</span>
+          <span class="r-title">{{ e.title }}</span>
+          <span class="r-chips">
+            {% if e.pdf %}<span>PDF{% if e.pdf.size > 1 %}×{{ e.pdf.size }}{% endif %}</span>{% endif %}
+            {% if e.skill %}<span class="sk">SKILL</span>{% endif %}
+          </span>
+          <span class="r-dur">{{ e.date | date: "%Y.%m.%d" }}{% if e.duration and e.duration != "" %} · {{ e.duration }}{% endif %}</span>
+          <a class="cover-link" href="{{ e_url }}" target="_blank" rel="noopener" aria-label="在 B 站观看第 {{ e.ep }} 期：{{ e.title }}"></a>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="hall-foot">
+      <a class="all" href="{{ videos.channel }}" target="_blank" rel="noopener">查看全部 {{ eps.size }} 期 → B站空间</a>
+      <span class="note">站内不播放 · 视频均在 B 站观看，配套资料在下方资料架自取</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 过渡带 ============ -->
+<div class="band">
+  <div class="wrap">
+    <div class="line"></div>
+    <div class="lab">资料架 · SOURCE SHELF<small>全部免费自取</small></div>
+  </div>
+</div>
+
+<!-- ============ 纸面资料架 ============ -->
+<section class="shelf">
+  <div class="wrap">
+    <a class="repo-chip" href="https://github.com/wozwiiiii/my-source" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+      github.com/wozwiiiii/my-source
+    </a>
+
+    <!-- 思维导图区：以仓库目录为统一入口（文件增删在 my-source 仓库进行，本页零改动） -->
+    <p class="shelf-note">以目录为统一入口 —— 全部思维导图托管在 my-source 仓库，点卡片打开对应 GitHub 目录页</p>
+
+    {% comment %} 从各期日期推导目录名（10月7日 格式，与仓库目录命名一致），同名去重 {% endcomment %}
+    {% assign dir_names = "" | split: "," %}
+    {% for e in eps %}
+      {% if e.date %}
+        {% assign dp = e.date | date: "%Y-%m-%d" | split: "-" %}
+        {% assign dm = dp[1] | plus: 0 %}
+        {% assign dd = dp[2] | plus: 0 %}
+        {% assign edn = dm | append: "月" | append: dd | append: "日" %}
+        {% unless dir_names contains edn %}
+          {% assign dir_names = dir_names | push: edn %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+
+    <div class="pdf-grid">
+      <div class="pdf-card">
+        <span class="name">知识点汇总 / 总览</span>
+        <span class="meta">全部讲解的总目录 · 含各期思维导图与素材</span>
+        <a class="dl" href="{{ repo_base }}/{{ km_enc }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+      {% for dn in dir_names %}
+        {% capture eplist %}{% for e in eps %}{% if e.date %}{% assign dp2 = e.date | date: "%Y-%m-%d" | split: "-" %}{% assign dm2 = dp2[1] | plus: 0 %}{% assign dd2 = dp2[2] | plus: 0 %}{% assign edn2 = dm2 | append: "月" | append: dd2 | append: "日" %}{% if edn2 == dn %}EP.{{ e.ep }}、{% endif %}{% endif %}{% endfor %}{% endcapture %}
+        <div class="pdf-card">
+          <span class="name">知识点汇总 / {{ dn }}</span>
+          <span class="meta">{{ eplist | split: "、" | join: "、" }} 配套思维导图</span>
+          <a class="dl" href="{{ repo_base }}/{{ km_enc }}/{{ dn | url_encode }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Skill 工具区 -->
+    {% assign skills = site.data.skills %}
+    <div class="skill-head">
+      <span class="path">Skill 工具 / my_source/my_skill</span>
+      <span class="cnt">{{ skills.size }} 个 · 部分视频配套 · 覆盖经历到面试全链路</span>
+    </div>
+    <div class="skill-grid">
+      {% for s in skills %}
+      <div class="skill-card">
+        <span class="tag">{{ s.tag }}</span>
+        <h3>{{ s.name }}</h3>
+        <p>{{ s.desc }}</p>
+        <a class="lnk" href="{{ repo_base }}/{{ s.path | url_encode }}" target="_blank" rel="noopener">
+          查看 SKILL.md<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer>
+  <div class="wrap foot-in">
+    <div>© 2026 {{ site.title }} · Built with Jekyll &amp; Hydejack v9.2.1（GPL-3.0）</div>
+    <div class="foot-links">
+      <a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">GitHub</a>
+      <a href="{{ '/' | relative_url }}">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- 主题切换（仅作用于纸面，放映厅恒墨黑） ---------- */
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var moon = document.getElementById('icoMoon');
+  var sun  = document.getElementById('icoSun');
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    if (moon && sun){ moon.style.display = dark ? 'none' : 'block'; sun.style.display = dark ? 'block' : 'none'; }
+    try { localStorage.setItem('theme', t); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('theme'); } catch(e){}
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  apply(saved || (prefersDark ? 'dark' : 'light'));
+  if (btn) btn.addEventListener('click', function(){
+    apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---------- 汉堡面板：开合 / Esc / 遮罩 / 锁滚动 ---------- */
+  var burger = document.getElementById('burger');
+  var menu   = document.getElementById('mmenu');
+  var mask   = document.getElementById('mask');
+  function setMenu(open){
+    if (!burger || !menu) return;
+    menu.classList.toggle('open', open);
+    if (mask) mask.classList.toggle('show', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    document.body.classList.toggle('locked', open);
+  }
+  if (burger && menu){
+    burger.addEventListener('click', function(){
+      setMenu(!menu.classList.contains('open'));
+    });
+    if (mask) mask.addEventListener('click', function(){ setMenu(false); });
+    document.addEventListener('keydown', function(ev){
+      if (ev.key === 'Escape' && menu.classList.contains('open')) setMenu(false);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
