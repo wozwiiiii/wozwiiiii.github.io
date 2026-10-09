@@ -7,7 +7,7 @@ period: 2026年6月-7月
 permalink: /blog/2026/08/24/emergency-rag/
 categories: [项目]
 tags: [RAG, ReAct Agent, FastAPI, 沙箱安全, Chroma]
-image: https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=emergency%20management%20AI%20Q%26A%20system%20RAG%20retrieval%20clean%20green%20tech%20illustration&image_size=landscape_16_9
+image: /assets/img/posts/emergency-rag/cover.jpg
 ---
 
 ## 项目背景

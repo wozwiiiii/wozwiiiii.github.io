@@ -7,7 +7,7 @@ period: 2026年3月-4月
 permalink: /blog/2026/08/26/lingxi-voice/
 categories: [项目]
 tags: [AI语音, TTS, FastAPI, CosyVoice2, Vue3]
-image: https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20voice%20technology%20PPT%20courseware%20generation%20clean%20blue%20tech%20illustration&image_size=landscape_16_9
+image: /assets/img/posts/lingxi-voice/cover.jpg
 ---
 
 ## 项目背景

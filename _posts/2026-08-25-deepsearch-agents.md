@@ -7,7 +7,7 @@ period: 2026年5月-6月
 permalink: /blog/2026/08/25/deepsearch-agents/
 categories: [项目]
 tags: [Agent, LangGraph, 安全, FastAPI, 生产化改造]
-image: https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=AI%20agent%20search%20system%20architecture%20security%20shield%20clean%20dark%20blue%20tech%20illustration&image_size=landscape_16_9
+image: /assets/img/posts/deepsearch-agents/cover.jpg
 ---
 
 ## 项目背景
