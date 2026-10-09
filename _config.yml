@@ -1,5 +1,5 @@
 lang:                  zh-CN
-title:                 wozwiiiii
+title:                 努力的小橙
 copyright:             © 2026. All rights reserved.
 
 accent_image:          /assets/img/sidebar-bg.jpg
@@ -20,23 +20,27 @@ plugins:               [jekyll-include-cache, jekyll-paginate, jekyll-seo-tag, j
 paginate:              5
 paginate_path:         /blog/page:num/
 
-# 作者信息
+# 作者信息（隐私红线：不留明文邮箱，邮箱一律由页面 JS 拼接渲染）
 author:
-  name:                陈登基
-  email:               2024771609@qq.com
+  name:                努力的小橙
   social:
     github:            wozwiiiii
 
-# 侧边栏导航菜单
+# 侧边栏导航菜单（顺序与首页/works 顶栏一致：首页 · 项目 · 视频 · 博客 · 关于）
 menu:
   - title:             首页
     url:               /
-  - title:             博客
-    url:               /blog/
   - title:             项目
     url:               /projects/
+  - title:             视频
+    url:               /works/
+  - title:             博客
+    url:               /blog/
   - title:             关于
     url:               /about/
+
+# 构建排除项（仓库管理文件不参与站点构建；index-about.md 为旧首页脱敏备份，也不输出）
+exclude:               [NOTICE.md, LICENSE.md, licenses, README.md, Gemfile, Gemfile.lock, package.json, package-lock.json, webpack.config.js, jekyll-theme-hydejack.gemspec, vendor, node_modules, .scripts, .jekyll-cache, index-about.md]
 
 # 侧边栏底部链接
 sidebar:
