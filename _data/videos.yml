@@ -1,0 +1,55 @@
+# B 站视频数据 · works 页与首页「最新一期」视频条共用
+#
+# TODO: 替换为真实视频标题（B站空间页 JS 渲染无法抓取）
+# TODO: title / desc / date / duration 均为占位文案，拿到真实信息后逐期替换
+# TODO: 拿到单期 BV 链接后，把对应期的 url 从 "" 改为 BV 号（如 https://www.bilibili.com/video/BVxxxx）
+#
+# channel：B 站空间，全站唯一视频出口（works 页底栏、首页视频条跳转兜底）
+channel: https://b23.tv/PICJzQY
+
+# episodes：
+#   ep        期数（数字）
+#   title     标题（占位）
+#   desc      一句话简介（占位）
+#   date      上传日期（占位；真实已知：思维导图于 2026-10-07 上传仓库）
+#   duration  时长（占位）
+#   cover     封面图路径，空串 → 暗色渐变占位
+#   url       单期链接，空串 → 跳 B 站空间
+#   featured  精选期标记（works 页大卡、首页视频条取此期）
+#   pdf       本期配套思维导图文件名（对应 my-source 仓库 知识点汇总/<日期>/ 下真实文件），存在才渲染 chip
+#   skill     本期配套 skill 目录名（对应 my_source/my_skill/ 下真实目录），存在才渲染 chip
+episodes:
+  - ep: 1
+    title: （占位标题）RAG 检索问答：从原理到工程落地
+    desc: （占位简介）讲解 RAG 检索问答的原理、分块检索与工程化细节，配套思维导图免费自取。
+    date: 2026-10-07
+    duration: "12:34"
+    cover: ""
+    url: ""
+    featured: true
+    pdf: [RAG_1.pdf, RAG_2.pdf]
+    skill: campus-written-test-generator
+  - ep: 2
+    title: （占位标题）常见 Agent 产品拆解
+    desc: （占位简介）对比分析常见 Agent 产品的设计思路与产品特色。
+    date: 2026-10-07
+    duration: "09:41"
+    cover: ""
+    url: ""
+    pdf: [常见agent产品特色.pdf]
+    skill: campus-ai-interview-builder
+  - ep: 3
+    title: （占位标题）生产应用开发流程（自主版）
+    desc: （占位简介）从 0 到 1 走一遍生产环境下的 AI 应用开发流程。
+    date: 2026-10-07
+    duration: "15:07"
+    cover: ""
+    url: ""
+    pdf: [生产应用开发流程（自主）.pdf]
+  - ep: 4
+    title: （占位标题）更多主题，敬请期待
+    desc: （占位简介）下一期规划中，更新后本页自动补充。
+    date: 2026-10-07
+    duration: ""
+    cover: ""
+    url: ""
