@@ -1,0 +1,50 @@
+# 项目总览数据 · 供 corridor-projects 布局渲染档案条目
+# 纪律：数字全部取自项目实测文案，禁止编造；与 projects.md 详细拆解保持同源
+entries:
+  - idx: "01"
+    dates: "2026.03 — 04"
+    tag: TTS
+    anchor: p1
+    title: AI 语音课件应用
+    slug: lingxi-voice
+    one: 帮老师把 PPT 变成带配音的有声课件，支持声音克隆和逐页试听。大赛阶段（团队 4 人）负责后端和语音合成；赛后一个人按企业规范完整重构。
+    metrics:
+      - "<b>96 个</b> pytest 用例 + <b>22 项</b>接口契约检查"
+      - "Docker Compose 五服务一键起"
+      - "大赛<b>全国三等奖</b>"
+    stack: FastAPI / CosyVoice2 / Celery / Redis / PostgreSQL / Vue 3 / Docker
+    github: https://github.com/wozwiiiii/lingxi-voice
+    gh_name: lingxi-voice
+    blog: /blog/2026/08/26/lingxi-voice/
+
+  - idx: "02"
+    dates: "2026.05 — 06"
+    tag: AGENT
+    anchor: p2
+    title: 多智能体深度研究系统
+    slug: deepsearch-agent-try
+    one: 把一个开源教学版的深度研究 Agent 改造成能放心对外跑的版本。诚实定位：基于开源教学项目的生产化改造，不是从零自研。
+    metrics:
+      - "修 <b>14 类</b>安全与稳定性问题，<b>+3,649 行</b>工程增量"
+      - "<b>129 个</b>单元测试 <b>6 秒</b>跑完，不依赖真实 LLM"
+      - "<b>5 个</b> commit 交付"
+    stack: DeepAgents / LangGraph / FastAPI / MySQL / SQLite / Tavily / slowapi
+    github: https://github.com/wozwiiiii/deepsearch-agent-try
+    gh_name: deepsearch-agent-try
+    blog: /blog/2026/08/25/deepsearch-agents/
+
+  - idx: "03"
+    dates: "2026.06 — 07"
+    tag: RAG
+    anchor: p3
+    title: RAG + 表格双路问答系统
+    slug: all-in-rag-myself-new
+    one: 问政策能查文档回答，问统计能对着 17 张 Excel 写代码算出来。已知限制（.wps 解析不了、限流状态在内存里）都写在 README 里。
+    metrics:
+      - "<b>18 题</b>意图路由全对，含测拒答的 refuse 类"
+      - "三层沙箱拦截 <b>30 条</b>攻击载荷，<b>64 项</b>测试通过"
+      - "Prompt 从约 <b>2.3 万 token</b> 压缩（全量塞 7B 超时）"
+    stack: FastAPI / Chroma / pandas / ReAct / bge-m3 / Docker
+    github: https://github.com/wozwiiiii/all-in-rag-myself-new
+    gh_name: all-in-rag-myself-new
+    blog: /blog/2026/08/24/emergency-rag/

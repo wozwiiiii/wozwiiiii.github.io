@@ -16,7 +16,7 @@
 :root{
   --paper:#F7F6F2; --card:#FFFFFF; --card-2:#FAF8F4;
   --ink-900:#1B1A17; --ink-800:#2C2A25; --ink-700:#46443D; --ink-600:#5C5A52;
-  --ink-500:#75726A; --ink-400:#94918A; --ink-200:#D8D5CC; --ink-100:#E8E5DD;
+  --ink-500:#69665F; --ink-400:#726F69; --ink-200:#D8D5CC; --ink-100:#E8E5DD;
   --accent:#A8381B; --amber:#D98B3A; --accent-l:#F5E9E4;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   --mono:"JetBrains Mono","SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
@@ -26,7 +26,7 @@
 [data-theme="dark"]{
   --paper:#131211; --card:#1B1A18; --card-2:#201F1C;
   --ink-900:#EFEDE6; --ink-800:#DCD9D0; --ink-700:#B8B5AC; --ink-600:#95928A;
-  --ink-500:#7A7770; --ink-400:#5F5C55; --ink-200:#302E29; --ink-100:#242220;
+  --ink-500:#8A8780; --ink-400:#83807A; --ink-200:#302E29; --ink-100:#242220;
   --accent:#DE7049; --amber:#E8A96B; --accent-l:#241A15;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -36,49 +36,6 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
 .mono{font-family:var(--mono)}
 
-/* ============ 纸面走廊 · Nav（72px，刻意轻） ============ */
-.corridor{background:var(--paper);border-bottom:1px solid var(--ink-100)}
-.corridor-in{height:72px;display:flex;align-items:center;gap:14px}
-.crumb{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--ink-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crumb b{color:var(--ink-800);font-weight:600}
-.crumb .sep{margin:0 7px;opacity:.55}
-.back{
-  margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:12px;color:var(--ink-500);
-  border:1px solid var(--ink-200);padding:5px 13px;border-radius:999px;transition:all .18s;
-}
-.back:hover{color:var(--accent);border-color:var(--accent)}
-.theme-btn{
-  width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100);
-  background:var(--card);color:var(--ink-500);display:grid;place-items:center;cursor:pointer;transition:all .18s;
-}
-.theme-btn:hover{color:var(--accent);border-color:var(--accent)}
-.theme-btn svg{width:15px;height:15px}
-.burger{
-  display:none;width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100);
-  background:var(--card);color:var(--ink-700);cursor:pointer;place-items:center;
-}
-.burger svg{width:17px;height:17px}
-.burger[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
-
-/* 汉堡面板 */
-.mmenu{
-  position:fixed;left:0;right:0;top:0;z-index:90;background:var(--card);
-  border-bottom:1px solid var(--ink-100);padding:18px 28px 22px;
-  transform:translateY(-104%);opacity:0;transition:transform .2s ease,opacity .2s ease;box-shadow:0 18px 40px rgba(27,26,23,.10);
-}
-.mmenu.open{transform:none;opacity:1}
-.mmenu a{display:block;padding:10px 4px;font-size:15.5px;font-weight:600;color:var(--ink-800);border-bottom:1px solid var(--ink-100)}
-.mmenu a:last-of-type{border-bottom:none}
-.mmenu a.cur{color:var(--accent)}
-.mmenu .m-rows{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px dashed var(--ink-200)}
-.mmenu .m-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400)}
-.mask{position:fixed;inset:0;z-index:80;background:rgba(19,18,17,.42);opacity:0;pointer-events:none;transition:opacity .2s}
-.mask.show{opacity:1;pointer-events:auto}
-body.locked{overflow:hidden}
-@media(max-width:840px){
-  .burger{display:grid}
-  .back{display:none}
-}
 
 /* ============ 墨黑放映厅 ============ */
 .hall{
@@ -93,7 +50,7 @@ body.locked{overflow:hidden}
 .hall-tag i{width:6px;height:6px;border-radius:50%;background:#E8975A;box-shadow:0 0 8px rgba(232,151,90,.8)}
 .hall-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:24px}
 .hall-head h1{font-size:20px;font-weight:750;letter-spacing:-.015em;color:#EFEDE6}
-.hall-head .cnt{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#5F5C55;margin-left:auto}
+.hall-head .cnt{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:#83807A;margin-left:auto}
 
 /* 精选大卡 */
 .feat{
@@ -148,7 +105,7 @@ body.locked{overflow:hidden}
 
 /* EP 列表 */
 .rows{margin-top:22px;border:1px solid #2B2A25;border-radius:14px;background:#1B1A18;padding:0 16px}
-.rows .empty{padding:20px 6px;font-family:var(--mono);font-size:12px;color:#5F5C55}
+.rows .empty{padding:20px 6px;font-family:var(--mono);font-size:12px;color:#83807A}
 .row{
   display:grid;grid-template-columns:56px 1fr auto auto;gap:16px;align-items:center;
   padding:14px 4px;border-bottom:1px solid #22211D;position:relative;
@@ -163,7 +120,7 @@ body.locked{overflow:hidden}
   border:1px solid #2B2A25;color:#8A877E;
 }
 .row .r-chips span.sk{border-color:rgba(232,151,90,.4);color:#E8975A}
-.row .r-dur{font-family:var(--mono);font-size:12px;color:#5F5C55;text-align:right;white-space:nowrap}
+.row .r-dur{font-family:var(--mono);font-size:12px;color:#83807A;text-align:right;white-space:nowrap}
 .row .cover-link{border-radius:0}
 @media(max-width:760px){
   .row{grid-template-columns:52px 1fr;row-gap:6px}
@@ -179,7 +136,7 @@ body.locked{overflow:hidden}
 }
 .hall-foot .all{font-family:var(--mono);font-size:12px;color:#E8975A;position:relative;z-index:2}
 .hall-foot .all:hover{color:#F0AC74}
-.hall-foot .note{font-family:var(--mono);font-size:11px;color:#5F5C55}
+.hall-foot .note{font-family:var(--mono);font-size:11px;color:#83807A}
 
 /* ============ 过渡带 ============ */
 .band{padding:52px 0 8px}
@@ -269,33 +226,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
 {% assign repo_base = "https://github.com/wozwiiiii/my-source/tree/main" %}
 {% assign km_enc = "知识点汇总" | url_encode %}
 
-<!-- ============ 纸面走廊 · Nav ============ -->
-<header class="corridor">
-  <div class="wrap corridor-in">
-    <span class="crumb"><b>wozwiiiii.github.io</b><span class="sep">/</span>作品<span class="sep">/</span>{{ page.title }}</span>
-    <button class="burger" id="burger" aria-expanded="false" aria-controls="mmenu" aria-label="打开菜单">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
-    <button class="theme-btn" id="themeBtn" aria-label="切换深色 / 浅色模式" title="切换深色 / 浅色">
-      <svg id="icoMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg id="icoSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-    </button>
-    <a class="back" href="{{ '/' | relative_url }}">↑ 返回首页</a>
-  </div>
-</header>
-
-<!-- 汉堡面板（≤840px） -->
-<nav class="mmenu" id="mmenu" aria-label="站内导航">
-  {% assign cur = page.url %}
-  {% for node in site.menu %}
-    <a href="{{ node.url | relative_url }}"{% if node.url == cur %} class="cur" aria-current="page"{% endif %}>{{ node.title }}</a>
-  {% endfor %}
-  <div class="m-rows">
-    <span class="m-cap">MENU · 5 PAGES</span>
-    <a class="back" style="margin-left:0" href="{{ '/' | relative_url }}">↑ 返回首页</a>
-  </div>
-</nav>
-<div class="mask" id="mask"></div>
+{% include corridor-nav.html %}
 
 <!-- ============ 墨黑放映厅 ============ -->
 <section class="hall">

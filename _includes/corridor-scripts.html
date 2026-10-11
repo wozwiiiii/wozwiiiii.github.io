@@ -1,0 +1,37 @@
+{% comment %} 走廊导航交互脚本：主题切换 + 汉堡面板（与 works.html 底部脚本同款行为） {% endcomment %}
+<script>
+(function(){
+  'use strict';
+  /* 主题切换 */
+  var root=document.documentElement,btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('icoMoon'),sun=document.getElementById('icoSun');
+  function apply(t){
+    root.setAttribute('data-theme',t);
+    var dark=t==='dark';
+    if(moon&&sun){moon.style.display=dark?'none':'block';sun.style.display=dark?'block':'none'}
+    try{localStorage.setItem('theme',t)}catch(e){}
+  }
+  var saved=null;try{saved=localStorage.getItem('theme')}catch(e){}
+  var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  apply(saved||(prefersDark?'dark':'light'));
+  if(btn)btn.addEventListener('click',function(){apply(root.getAttribute('data-theme')==='dark'?'light':'dark')});
+
+  /* 汉堡面板：开合 / Esc / 遮罩 / 锁滚动 */
+  var burger=document.getElementById('burger'),menu=document.getElementById('mmenu'),mask=document.getElementById('mask');
+  function setMenu(open){
+    if(!burger||!menu)return;
+    menu.classList.toggle('open',open);
+    if(mask)mask.classList.toggle('show',open);
+    burger.setAttribute('aria-expanded',open?'true':'false');
+    burger.setAttribute('aria-label',open?'关闭菜单':'打开菜单');
+    document.body.classList.toggle('locked',open);
+  }
+  if(burger&&menu){
+    burger.addEventListener('click',function(){setMenu(!menu.classList.contains('open'))});
+    if(mask)mask.addEventListener('click',function(){setMenu(false)});
+    document.addEventListener('keydown',function(ev){
+      if(ev.key==='Escape'&&menu.classList.contains('open'))setMenu(false);
+    });
+  }
+})();
+</script>

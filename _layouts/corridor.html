@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'zh-CN' }}" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title }} · {{ site.title }}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231B1A17'/><text x='50' y='68' font-size='54' font-family='sans-serif' font-weight='700' fill='%23DE7049' text-anchor='middle'>橙</text></svg>">
+<style>
+/* ============================================================
+   corridor 布局 · 编辑档案风（v5）通用页面外壳
+   与首页 v5 / works B1 同一 token 体系；供 about / projects / blog / posts 使用
+   ============================================================ */
+:root{
+  --paper:#F7F6F2; --card:#FFFFFF; --card-2:#FAF8F4;
+  --ink-900:#1B1A17; --ink-800:#2C2A25; --ink-700:#46443D; --ink-600:#5C5A52;
+  --ink-500:#69665F; --ink-400:#726F69; --ink-200:#D8D5CC; --ink-100:#E8E5DD;
+  --accent:#A8381B; --accent-2:#C9632B; --amber:#D98B3A;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:880px;
+}
+[data-theme="dark"]{
+  --paper:#131211; --card:#1B1A18; --card-2:#201F1C;
+  --ink-900:#EFEDE6; --ink-800:#DCD9D0; --ink-700:#B8B5AC; --ink-600:#95928A;
+  --ink-500:#8A8780; --ink-400:#83807A; --ink-200:#302E29; --ink-100:#242220;
+  --accent:#DE7049; --accent-2:#E8975A; --amber:#E8A96B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink-700);line-height:1.78;font-size:16px;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+
+main{min-height:calc(100vh - 64px)}
+.page-head{padding:52px 0 8px}
+.page-head .eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--accent);display:block;margin-bottom:10px}
+.page-head h1{font-size:clamp(24px,3.4vw,32px);font-weight:800;letter-spacing:-.02em;color:var(--ink-900);line-height:1.3}
+.page-head .sub{margin-top:8px;font-size:15px;color:var(--ink-500)}
+
+/* ============ 正文 prose（markdown 渲染区） ============ */
+.prose{padding:28px 0 24px}
+.prose h2{font-size:20px;font-weight:750;letter-spacing:-.015em;color:var(--ink-900);margin:40px 0 12px;padding-top:28px;border-top:1px solid var(--ink-100)}
+.prose h2:first-child{margin-top:8px;padding-top:0;border-top:none}
+.prose h3{font-family:var(--mono);font-size:14.5px;font-weight:600;color:var(--accent-2);margin:28px 0 8px}
+.prose p{margin-bottom:14px}
+.prose p b,.prose p strong{color:var(--ink-900);font-weight:650}
+.prose ul,.prose ol{margin:0 0 16px 1.4em}
+.prose li{margin-bottom:6px}
+.prose a{color:var(--accent);border-bottom:1px solid var(--ink-200);padding-bottom:1px;transition:border-color .16s}
+.prose a:hover{border-color:var(--accent)}
+.prose img{max-width:100%;border:1px solid var(--ink-100);border-radius:6px;display:block;margin:18px 0}
+.prose blockquote{border-left:3px solid var(--amber);background:var(--card-2);padding:12px 18px;margin:0 0 16px;color:var(--ink-600)}
+.prose code{font-family:var(--mono);font-size:.88em;background:var(--card-2);border:1px solid var(--ink-100);padding:1px 6px;border-radius:4px;color:var(--ink-800)}
+.prose pre{background:var(--card-2);border:1px solid var(--ink-100);border-radius:6px;padding:16px 18px;overflow-x:auto;margin:0 0 18px;line-height:1.6}
+.prose pre code{background:none;border:none;padding:0;font-size:13px}
+.prose table{width:100%;border-collapse:collapse;margin:0 0 18px;font-size:14px}
+.prose th{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--ink-400);text-align:left;border-bottom:2px solid var(--ink-900);padding:8px 14px 8px 0}
+.prose td{border-bottom:1px solid var(--ink-100);padding:10px 14px 10px 0;vertical-align:top}
+.prose hr{border:none;border-top:1px solid var(--ink-100);margin:28px 0}
+
+/* ============ 页脚 ============ */
+footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
+.foot-in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-500)}
+.foot-links{display:flex;gap:18px;flex-wrap:wrap}
+.foot-links a{color:var(--ink-500);transition:color .18s}
+.foot-links a:hover{color:var(--accent)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+{% include corridor-nav.html %}
+
+<main>
+  {{ content }}
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>© 2026 {{ site.title }} · Built with Jekyll &amp; Hydejack v9.2.1（GPL-3.0）</div>
+    <div class="foot-links">
+      <a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">GitHub</a>
+      <a href="{{ '/' | relative_url }}">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+{% include corridor-scripts.html %}
+</body>
+</html>

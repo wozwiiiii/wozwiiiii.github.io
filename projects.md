@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: corridor-projects
 title: 项目
 description: 三个项目的背景、我做了什么、用了什么、结果如何
 permalink: /projects/
@@ -7,11 +7,7 @@ permalink: /projects/
 
 三个项目都使用 AI 工具辅助开发，代码和文档都放在 GitHub 上，每篇拆解文章里有更细的技术说明。
 
----
-
-## 1. 灵犀语伴 — AI 语音课件应用（2026年3月-4月）
-
-![灵犀语伴](/assets/img/posts/lingxi-voice/cover.jpg)
+## <a id="p1"></a><span class="p-idx">01</span>灵犀语伴 — AI 语音课件应用（2026年3月-4月）<a class="back-top" href="#top-of-projects">↑ 目录</a>
 
 **技术栈：** Python, FastAPI, CosyVoice2, Celery, Redis, PostgreSQL, Vue 3, Docker
 
@@ -31,11 +27,7 @@ permalink: /projects/
 
 **GitHub：** [lingxi-voice](https://github.com/wozwiiiii/lingxi-voice.git) · **拆解：** [技术拆解](/blog/2026/08/26/lingxi-voice/)
 
----
-
-## 2. deepsearch — 多智能体深度研究系统（2026年5月-6月）
-
-![deepsearch](/assets/img/posts/deepsearch-agents/cover.jpg)
+## <a id="p2"></a><span class="p-idx">02</span>deepsearch — 多智能体深度研究系统（2026年5月-6月）<a class="back-top" href="#top-of-projects">↑ 目录</a>
 
 **技术栈：** DeepAgents, LangGraph, FastAPI, MySQL, SQLite, Tavily, slowapi
 
@@ -54,11 +46,7 @@ permalink: /projects/
 
 **GitHub：** [deepsearch-agent-try](https://github.com/wozwiiiii/deepsearch-agent-try.git) · **拆解：** [改造拆解](/blog/2026/08/25/deepsearch-agents/)
 
----
-
-## 3. 应急RAG问答系统（2026年6月-7月）
-
-![应急RAG](/assets/img/posts/emergency-rag/cover.jpg)
+## <a id="p3"></a><span class="p-idx">03</span>应急RAG问答系统（2026年6月-7月）<a class="back-top" href="#top-of-projects">↑ 目录</a>
 
 **技术栈：** FastAPI, Chroma, pandas, ReAct Agent, bge-m3, Docker
 

@@ -1,0 +1,130 @@
+---
+layout: corridor
+---
+{% comment %}
+  关于页 · 编辑档案风组件化（档案信息行 / hairline 目录行 / mono 技术栈分组）
+  文案与 about.md 原文同源，未增删事实
+{% endcomment %}
+<div class="wrap" id="top-of-about">
+  <header class="page-head">
+    <span class="eyebrow">ABOUT</span>
+    <h1>{{ page.title }}</h1>
+    <p class="sub">{{ page.description }}</p>
+  </header>
+
+  <!-- 档案信息行 -->
+  <div class="idcard">
+    <div class="crow"><span class="k">姓名</span><span class="v">努力的小橙</span></div>
+    <div class="crow"><span class="k">身份</span><span class="v">中南林业科技大学 通信工程本科（2027 届）</span></div>
+    <div class="crow"><span class="k">求职方向</span><span class="v hl">AI 应用开发 / Agent 开发实习与秋招 · 随时入职</span></div>
+    <div class="crow"><span class="k">GitHub</span><span class="v"><a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">github.com/wozwiiiii</a></span></div>
+    <div class="crow"><span class="k">居住地</span><span class="v">湖南长沙</span></div>
+  </div>
+  <p class="lede">在校期间用 AI 工具独立完成过 <b>3 个 AI 项目</b>，负责后端开发、语音合成部署、检索问答和 Agent 编排落地；习惯把项目里踩过的坑和解决办法写成文档。</p>
+
+  <!-- 教育背景 -->
+  <section class="ablk">
+    <span class="eyebrow" style="color:var(--ink-400)">EDUCATION · 教育背景</span>
+    <div class="edu">
+      <div class="edu-main"><b>中南林业科技大学</b> · 通信工程 · 本科</div>
+      <time>2023-09 至 2027-08</time>
+    </div>
+    <ul class="ablist">
+      <li>GPA 3.5，专业排名前 20%</li>
+      <li>校级乙等奖学金</li>
+    </ul>
+  </section>
+
+  <!-- 资格证书：hairline 目录行 -->
+  <section class="ablk">
+    <span class="eyebrow" style="color:var(--ink-400)">CERTIFICATES · 资格证书</span>
+    <div class="arows">
+      <div class="arow"><span class="t">OPC Learner 认证</span><time>2026-05</time></div>
+      <div class="arow"><span class="t">Datawhale Agent Engineer ×2 / Prompt Engineer / AI+编程认证</span><time>2026-03</time></div>
+      <div class="arow"><span class="t">Datawhale AI 春训营证书 ×2</span><time>2026-03</time></div>
+    </div>
+  </section>
+
+  <!-- 竞赛经历 -->
+  <section class="ablk">
+    <span class="eyebrow" style="color:var(--ink-400)">COMPETITIONS · 竞赛经历</span>
+    <div class="arows">
+      <div class="arow"><span class="t">全国大学生服务外包创新创业大赛 <b>全国三等奖</b></span><time>团队 4 人</time></div>
+      <div class="arow"><span class="t">世界科学智能大赛 · 2 个赛道</span><time>2026-03</time></div>
+    </div>
+    <p class="note-line">三等奖项目为灵犀语伴（AI 语音课件应用），本人负责后端 + 语音合成 + 模型部署。</p>
+  </section>
+
+  <!-- 技能：mono 分组定义清单（与首页 TECH STACK 同构） -->
+  <section class="ablk">
+    <span class="eyebrow" style="color:var(--ink-400)">SKILLS · 技能</span>
+    <div class="stack-grid">
+      <div class="stack-g">
+        <h3>编程语言</h3>
+        <p>Python<i>/</i>TypeScript · JS<i>/</i>SQL</p>
+        <p class="s-note">Python 为主开发语言（三个项目都用）；TypeScript / JS 与 SQL 能读写</p>
+      </div>
+      <div class="stack-g">
+        <h3>大模型与 Agent</h3>
+        <p>DeepAgents<i>/</i>LangGraph<i>/</i>LangChain<i>/</i>ReAct<i>/</i>Function Calling<i>/</i>AutoGen<i>/</i>MCP<i>/</i>LoRA · SFT</p>
+        <p class="s-note">项目实战用过 DeepAgents / LangGraph / LangChain；熟悉 Prompt Engineering、RAG 流程与 ReAct 等范式；跑通过 LoRA 微调与 SFT 流程</p>
+      </div>
+      <div class="stack-g">
+        <h3>后端与数据库</h3>
+        <p>FastAPI<i>/</i>ChromaDB<i>/</i>Milvus<i>/</i>Qdrant<i>/</i>Neo4j<i>/</i>SQLite</p>
+        <p class="s-note">FastAPI 与 ChromaDB / Milvus 为项目实战；Qdrant / Neo4j / SQLite 简单使用</p>
+      </div>
+      <div class="stack-g">
+        <h3>前端与工具</h3>
+        <p>Vue 3<i>/</i>Gradio<i>/</i>Streamlit<i>/</i>Git<i>/</i>Linux<i>/</i>Claude Code</p>
+        <p class="s-note">Vue 3 能搭页面；Gradio / Streamlit 做原型；日常使用 Claude Code 等 AI 工具</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="more-line"><a class="more" href="{{ '/projects/' | relative_url }}">看三个项目 →</a></p>
+</div>
+
+<style>
+/* ============ 档案信息行（与首页联系区同构） ============ */
+.idcard{border-top:1px solid var(--ink-900);margin-top:26px}
+.crow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:14px 0;border-bottom:1px solid var(--ink-100)}
+.crow .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink-400);white-space:nowrap}
+.crow .v{font-size:14.5px;font-weight:600;color:var(--ink-800);text-align:right}
+.crow .v a{border-bottom:1px solid var(--ink-200);padding-bottom:1px;transition:all .16s}
+.crow .v a:hover{color:var(--accent);border-color:var(--accent)}
+.crow .v.hl{color:var(--accent)}
+.lede{margin:22px 0 0;font-size:15.5px;color:var(--ink-600);line-height:1.85;max-width:640px}
+.lede b{color:var(--ink-900);font-weight:650;font-variant-numeric:tabular-nums}
+
+/* ============ 分区公共 ============ */
+.ablk{margin-top:48px;border-top:1px solid var(--ink-100);padding-top:26px}
+
+/* hairline 目录行（证书 / 竞赛） */
+.arows{margin-top:4px}
+.arow{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:14px 0;border-bottom:1px solid var(--ink-100)}
+.arow .t{font-size:14.5px;font-weight:550;color:var(--ink-800)}
+.arow .t b{color:var(--accent);font-weight:650}
+.arow time{font-family:var(--mono);font-size:12px;color:var(--ink-400);white-space:nowrap}
+.note-line{margin-top:12px;font-size:13px;color:var(--ink-500)}
+
+/* 教育 */
+.edu{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-top:4px;padding:14px 0;border-bottom:1px solid var(--ink-100);flex-wrap:wrap}
+.edu-main{font-size:15px;color:var(--ink-900)}
+.edu-main b{font-weight:700}
+.edu time{font-family:var(--mono);font-size:12px;color:var(--ink-400)}
+.ablist{margin:12px 0 0 1.4em}
+.ablist li{font-size:14px;color:var(--ink-600);margin-bottom:6px}
+
+/* 技能：mono 分组（与首页 STACK 同构） */
+.stack-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 56px;margin-top:4px}
+@media(max-width:760px){.stack-grid{grid-template-columns:1fr}}
+.stack-g{padding:20px 0;border-bottom:1px solid var(--ink-100)}
+.stack-g h3{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--ink-400);margin-bottom:10px}
+.stack-g p{font-family:var(--mono);font-size:12.5px;color:var(--ink-600);line-height:2;letter-spacing:.02em}
+.stack-g p i{font-style:normal;color:var(--ink-200);margin:0 7px}
+.stack-g .s-note{font-family:var(--sans);font-size:12.5px;color:var(--ink-500);line-height:1.7;margin-top:8px}
+
+/* 尾部引导 */
+.more-line{margin:44px 0 8px}
+</style>

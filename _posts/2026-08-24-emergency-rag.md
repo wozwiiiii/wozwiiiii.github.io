@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: corridor-post
 title: 应急RAG问答系统
 description: 危化品应急管理场景，RAG + Text-to-Pandas Agent双路问答，三层沙箱防护LLM生成代码
 date: 2026-08-24
@@ -7,7 +7,6 @@ period: 2026年6月-7月
 permalink: /blog/2026/08/24/emergency-rag/
 categories: [项目]
 tags: [RAG, ReAct Agent, FastAPI, 沙箱安全, Chroma]
-image: /assets/img/posts/emergency-rag/cover.jpg
 ---
 
 ## 项目背景

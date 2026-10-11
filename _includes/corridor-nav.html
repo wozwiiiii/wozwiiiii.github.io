@@ -1,0 +1,69 @@
+{% comment %}
+  统一走廊式导航（全站唯一实现，v5 编辑档案风）
+  依赖页面 :root 提供 --paper/--card/--ink-*/--accent 等 token（各布局均已定义）
+  交互脚本由 _includes/corridor-scripts.html 提供（works.html 自带同款脚本，无需重复引入）
+{% endcomment %}
+<style>
+/* ============ 走廊导航（64px · hairline · 无 CTA） ============ */
+.nav{background:var(--paper,#F7F6F2);border-bottom:1px solid var(--ink-100,#E8E5DD);position:sticky;top:0;z-index:50;transition:background .3s}
+.nav-in{height:64px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--ink-900,#1B1A17);font-size:15.5px;letter-spacing:-.01em;flex-shrink:0}
+.brand .mark{width:26px;height:26px;border-radius:6px;background:var(--ink-900,#1B1A17);color:var(--paper,#F7F6F2);display:grid;place-items:center;font-size:13px;font-weight:700}
+[data-theme="dark"] .brand .mark{background:var(--accent,#DE7049);color:#fff}
+.nav-links{margin-left:auto;display:flex;align-items:center;gap:22px}
+.nav-links a{font-size:14px;font-weight:550;color:var(--ink-500,#69665F);transition:color .16s}
+.nav-links a:hover{color:var(--accent,#A8381B)}
+.nav-links a.cur{color:var(--ink-900,#1B1A17);font-weight:650}
+[data-theme="dark"] .nav-links a.cur{color:#EFEDE6}
+.theme-btn{width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100,#E8E5DD);background:var(--card,#FFFFFF);color:var(--ink-500,#69665F);display:grid;place-items:center;cursor:pointer;transition:all .16s}
+.theme-btn:hover{color:var(--accent,#A8381B);border-color:var(--accent,#A8381B)}
+.theme-btn svg{width:15px;height:15px}
+.burger{display:none;width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px solid var(--ink-100,#E8E5DD);background:var(--card,#FFFFFF);color:var(--ink-700,#46443D);cursor:pointer;place-items:center}
+.burger svg{width:17px;height:17px}
+.burger[aria-expanded="true"]{border-color:var(--accent,#A8381B);color:var(--accent,#A8381B)}
+.mmenu{position:fixed;left:0;right:0;top:0;z-index:90;background:var(--card,#FFFFFF);border-bottom:1px solid var(--ink-100,#E8E5DD);padding:18px 28px 22px;transform:translateY(-104%);opacity:0;transition:transform .2s ease,opacity .2s ease;box-shadow:0 18px 40px rgba(27,26,23,.10)}
+.mmenu.open{transform:none;opacity:1}
+.mmenu a{display:block;padding:10px 4px;font-size:15.5px;font-weight:600;color:var(--ink-800,#2C2A25);border-bottom:1px solid var(--ink-100,#E8E5DD)}
+.mmenu a:last-of-type{border-bottom:none}
+.mmenu a.cur{color:var(--accent,#A8381B)}
+.mmenu .m-rows{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px dashed var(--ink-200,#D8D5CC)}
+.mmenu .m-cap{font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400,#726F69)}
+.mask{position:fixed;inset:0;z-index:80;background:rgba(19,18,17,.42);opacity:0;pointer-events:none;transition:opacity .2s}
+.mask.show{opacity:1;pointer-events:auto}
+body.locked{overflow:hidden}
+@media(max-width:840px){
+  .burger{display:grid}
+  .nav-links a{display:none}
+}
+</style>
+
+<nav class="nav" aria-label="站内导航">
+  <div class="wrap nav-in">
+    <a class="brand" href="{{ '/' | relative_url }}"><span class="mark">橙</span>努力的小橙</a>
+    <div class="nav-links">
+      {% assign cur = page.url %}
+      {% for node in site.menu %}
+        <a href="{{ node.url | relative_url }}"{% if node.url == cur %} class="cur" aria-current="page"{% endif %}>{{ node.title }}</a>
+      {% endfor %}
+      <button class="theme-btn" id="themeBtn" aria-label="切换深色 / 浅色模式" title="切换深色 / 浅色">
+        <svg id="icoMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="icoSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </div>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="mmenu" aria-label="打开菜单">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<nav class="mmenu" id="mmenu" aria-label="移动端菜单">
+  {% assign cur = page.url %}
+  {% for node in site.menu %}
+    <a href="{{ node.url | relative_url }}"{% if node.url == cur %} class="cur" aria-current="page"{% endif %}>{{ node.title }}</a>
+  {% endfor %}
+  <div class="m-rows">
+    <span class="m-cap">MENU · {{ site.menu.size }} PAGES</span>
+    <span class="m-cap">wozwiiiii.github.io</span>
+  </div>
+</nav>
+<div class="mask" id="mask"></div>

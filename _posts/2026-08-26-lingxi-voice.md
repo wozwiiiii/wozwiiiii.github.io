@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: corridor-post
 title: 灵犀语伴 — AI语音应用
 description: 面向教师与教培机构的AI语音课件制作系统，基于服务外包大赛全国三等奖项目重构
 date: 2026-08-26
@@ -7,7 +7,6 @@ period: 2026年3月-4月
 permalink: /blog/2026/08/26/lingxi-voice/
 categories: [项目]
 tags: [AI语音, TTS, FastAPI, CosyVoice2, Vue3]
-image: /assets/img/posts/lingxi-voice/cover.jpg
 ---
 
 ## 项目背景
