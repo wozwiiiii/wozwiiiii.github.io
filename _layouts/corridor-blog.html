@@ -1,0 +1,41 @@
+---
+layout: corridor
+---
+{% comment %} 博客索引 · 档案目录式文章列表（编辑档案风，无卡片网格） {% endcomment %}
+<div class="wrap">
+  <header class="page-head">
+    <span class="eyebrow">WRITING</span>
+    <h1>{{ page.title }}</h1>
+    <p class="sub">{{ page.description }}</p>
+  </header>
+
+  <div class="archive">
+    {% for post in site.posts %}
+    <a class="arow" href="{{ post.url | relative_url }}">
+      <time>{{ post.date | date: "%Y.%m.%d" }}</time>
+      <div class="arow-b">
+        <h3>{{ post.title }}</h3>
+        {% if post.description %}<p>{{ post.description }}</p>{% endif %}
+        {% if post.tags %}<span class="tags">{% for t in post.tags %}{{ t }}{% unless forloop.last %} / {% endunless %}{% endfor %}</span>{% endif %}
+      </div>
+      <span class="arrow">↗</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+<style>
+/* ============ 博客索引 · 档案行 ============ */
+.archive{border-top:1px solid var(--ink-100);margin-top:26px;padding-bottom:24px}
+.arow{display:grid;grid-template-columns:96px 1fr auto;gap:20px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--ink-100)}
+.arow time{font-family:var(--mono);font-size:12px;color:var(--ink-400);letter-spacing:.04em}
+.arow h3{font-size:15.5px;font-weight:650;color:var(--ink-900);transition:color .16s}
+.arow:hover h3{color:var(--accent)}
+.arow p{font-size:13.5px;color:var(--ink-500);margin-top:4px;line-height:1.65}
+.arow .tags{font-family:var(--mono);font-size:11px;color:var(--ink-400);margin-top:6px;display:block}
+.arow .arrow{font-family:var(--mono);color:var(--ink-400);transition:color .16s}
+.arow:hover .arrow{color:var(--accent)}
+@media(max-width:640px){
+  .arow{grid-template-columns:1fr;gap:4px}
+  .arow .arrow{display:none}
+}
+</style>

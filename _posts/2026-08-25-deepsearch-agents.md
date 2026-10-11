@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: corridor-post
 title: deepsearch — 深度探索系统
 description: 基于开源教学项目做生产化改造，覆盖路径穿越、SQL任意执行、横向越权等14类安全问题
 date: 2026-08-25
@@ -7,7 +7,6 @@ period: 2026年5月-6月
 permalink: /blog/2026/08/25/deepsearch-agents/
 categories: [项目]
 tags: [Agent, LangGraph, 安全, FastAPI, 生产化改造]
-image: /assets/img/posts/deepsearch-agents/cover.jpg
 ---
 
 ## 项目背景

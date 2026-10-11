@@ -1,0 +1,21 @@
+---
+layout: corridor
+---
+{% comment %} 文章页 · 编辑档案风阅读版式（题头 mono 元信息 + prose 正文） {% endcomment %}
+<article class="wrap">
+  <header class="page-head">
+    <span class="eyebrow">{{ page.date | date: "%Y.%m.%d" }}{% if page.period %} · {{ page.period }}{% endif %}</span>
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}<p class="sub">{{ page.description }}</p>{% endif %}
+    {% if page.tags %}<p class="sub mono" style="font-size:12px;letter-spacing:.04em">{% for t in page.tags %}{{ t }}{% unless forloop.last %} / {% endunless %}{% endfor %}</p>{% endif %}
+  </header>
+  <div class="prose">
+    {{ content }}
+  </div>
+  <p class="backline"><a href="{{ '/blog/' | relative_url }}">← 返回博客索引</a></p>
+</article>
+<style>
+.backline{padding:6px 0 20px;font-family:var(--mono);font-size:13px}
+.backline a{color:var(--ink-500);border-bottom:1px solid var(--ink-200);padding-bottom:2px;transition:color .16s}
+.backline a:hover{color:var(--accent);border-color:var(--accent)}
+</style>
