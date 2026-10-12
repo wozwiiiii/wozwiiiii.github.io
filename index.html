@@ -8,7 +8,7 @@ permalink: /
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ site.title }} · AI 应用与 Agent 开发</title>
-<meta name="description" content="中南林业科技大学通信工程 2027 届。独立完成三个 AI 项目的工程化改造：AI 语音课件应用、多智能体深度研究系统、应急管理 RAG 问答系统。">
+<meta name="description" content="把 AI 项目做到能交付的程度。这里放项目拆解、视频讲解和开源工具。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231B1A17'/><text x='50' y='68' font-size='54' font-family='sans-serif' font-weight='700' fill='%23DE7049' text-anchor='middle'>橙</text></svg>">
 <style>
 /* ============================================================
@@ -173,6 +173,9 @@ h2{font-size:clamp(21px,2.6vw,27px);font-weight:750;letter-spacing:-.02em;color:
 .post:hover .arrow{color:var(--accent)}
 .post.ghost h3{color:var(--ink-400);font-weight:450}
 @media(max-width:640px){.post{grid-template-columns:1fr;gap:4px}.post .arrow{display:none}}
+.teaser{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:4px}
+.teaser a{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-800);border-bottom:1px solid var(--ink-200);padding-bottom:2px;transition:all .16s}
+.teaser a:hover{color:var(--accent);border-color:var(--accent)}
 .more{display:inline-block;margin-top:22px;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-800);border-bottom:1px solid var(--ink-200);padding-bottom:2px}
 .more:hover{color:var(--accent);border-color:var(--accent)}
 
@@ -223,12 +226,12 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
     <div class="hero-grid">
       <div>
         <p class="hero-meta anim" style="--d:0ms">
-          <b>可实习 · 随时入职</b><span class="sep">/</span>2027 届 · 通信工程<span class="sep">/</span>AI 应用 · Agent 开发
+          <b>在做 AI 应用与 Agent 开发</b><span class="sep">/</span>通信工程在读<span class="sep">/</span>也在写文档、拍视频
         </p>
         <h1 class="anim" style="--d:60ms">把 AI 项目做到<br><em>敢给别人用</em>的程度</h1>
         <p class="lede anim" style="--d:120ms">
           中南林业科技大学通信工程本科在读，在校期间用 AI 工具独立完成过 <b>3 个 AI 项目</b>。我做的事情更接近"收尾"——把能跑起来的 demo 改到能交付：补认证和限流、拆掉危险的默认配置、把测试补齐、把已知限制老老实实写进 README。
-          <span class="intent"><b>求职意向：</b>AI 应用开发 / Agent 开发实习与秋招 · 期望地点 长沙 / 深圳 / 杭州 / 广州</span>
+          <span class="intent">这里放我的项目拆解、视频和工具——都开放，欢迎随便看。</span>
         </p>
         <div class="hero-links anim" style="--d:180ms">
           <a href="#projects">看项目 ↓</a>
@@ -240,10 +243,10 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
       <aside class="pcard anim" style="--d:220ms">
         <p class="cap">PROFILE / 档案</p>
         <dl>
-          <div class="row"><dt>状态</dt><dd><span class="hl">可实习 · 随时入职</span></dd></div>
-          <div class="row"><dt>方向</dt><dd>AI 应用 / Agent 开发</dd></div>
-          <div class="row"><dt>城市</dt><dd>湖南长沙</dd></div>
-          <div class="row"><dt>期望</dt><dd>长沙 · 深圳 · 杭州 · 广州</dd></div>
+          <div class="row"><dt>在做</dt><dd><span class="hl">AI 应用与 Agent 开发</span></dd></div>
+          <div class="row"><dt>在写</dt><dd>项目拆解与踩坑文档</dd></div>
+          <div class="row"><dt>在拍</dt><dd>B站知识视频 · 16 期</dd></div>
+          <div class="row"><dt>GitHub</dt><dd>github.com/wozwiiiii</dd></div>
           <div class="row"><dt>主语言</dt><dd>Python</dd></div>
         </dl>
       </aside>
@@ -260,7 +263,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
       </div>
       <div class="fig anim" style="--d:400ms">
         <div class="n">1<small>项</small></div>
-        <div class="l">服务外包大赛全国三等奖 · 团队 4 人</div>
+        <div class="l">团队项目最好成绩 · 服务外包大赛全国三等奖</div>
       </div>
     </div>
   </div>
@@ -391,7 +394,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
     <div class="sec-head">
       <span class="eyebrow">TECH STACK</span>
       <h2>技术栈</h2>
-      <p class="sec-sub">按职责分组，只列项目里真正用过的。不做百分比——"Python 90%" 这种数字在面试里只会被追问是怎么定义的。</p>
+      <p class="sec-sub">按职责分组，只列项目里真正用过的。不做百分比——百分比解释不清就是编的。</p>
     </div>
     <div class="stack-grid">
       <div class="stack-g">
@@ -435,19 +438,35 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
   </div>
 </section>
 
+<!-- ============ ABOUT TEASER ============ -->
+<section class="blk">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" style="color:var(--ink-400)">MORE</span>
+      <h2>除了做项目</h2>
+      <p class="sec-sub">我还正在努力把踩过的坑、学过的内容和了解到的信息通过文档、视频的方式展现出来，在这个过程中尝试构建并分享一套自己用的 Skill 工具。</p>
+    </div>
+    <div class="teaser">
+      <a href="{{ '/about/' | relative_url }}">关于我 →</a>
+      <a href="{{ '/blog/' | relative_url }}">博客 →</a>
+      <a href="{{ '/works/' | relative_url }}">作品与资料 →</a>
+    </div>
+  </div>
+</section>
+
 <!-- ============ CONTACT ============ -->
 <section class="blk" id="contact">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow">GET IN TOUCH</span>
-      <h2>正在找 AI 应用 / Agent 开发实习，欢迎聊聊</h2>
-      <p class="sec-sub">三个项目的完整代码和技术拆解都在上面，可以直接问细节。聊技术细节比聊简历有意思，也欢迎直接指出我项目里做得不对的地方。</p>
+      <h2>聊聊技术、项目或随便什么</h2>
+      <p class="sec-sub">三个项目的完整代码和技术拆解都在上面，可以直接问细节，也欢迎指出做得不对的地方。</p>
     </div>
     <div class="contact-grid">
       <div class="crow"><span class="k">EMAIL</span><span class="v"><span id="mail" data-u="2024771609" data-d="qq.com"></span><button class="copy" id="copyMail" type="button">复制</button></span></div>
       <div class="crow"><span class="k">GITHUB</span><span class="v"><a href="https://github.com/wozwiiiii" target="_blank" rel="noopener">github.com/wozwiiiii</a></span></div>
       <div class="crow"><span class="k">LOCATION</span><span class="v">湖南长沙</span></div>
-      <div class="crow"><span class="k">TARGET</span><span class="v">长沙 · 深圳 · 杭州 · 广州</span></div>
+      <div class="crow"><span class="k">BILIBILI</span><span class="v"><a href="https://b23.tv/PICJzQY" target="_blank" rel="noopener">@正在努力的小chen</a></span></div>
     </div>
   </div>
 </section>
