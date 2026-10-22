@@ -103,30 +103,27 @@ a{color:inherit;text-decoration:none}
 /* 整行可点的拉伸链接 */
 .cover-link{position:absolute;inset:0;z-index:1;border-radius:16px}
 
-/* EP 列表 */
-.rows{margin-top:22px;border:1px solid #2B2A25;border-radius:14px;background:#1B1A18;padding:0 16px}
-.rows .empty{padding:20px 6px;font-family:var(--mono);font-size:12px;color:#83807A}
-.row{
-  display:grid;grid-template-columns:56px 1fr auto auto;gap:16px;align-items:center;
-  padding:14px 4px;border-bottom:1px solid #22211D;position:relative;
-}
-.row:last-child{border-bottom:none}
-.row:hover{background:#241A15}
-.row .r-ep{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:#E8975A}
-.row .r-title{font-size:14.5px;font-weight:600;line-height:1.5;color:#EFEDE6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .r-chips{display:flex;gap:5px;flex-shrink:0}
-.row .r-chips span{
-  font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;
-  border:1px solid #2B2A25;color:#8A877E;
-}
-.row .r-chips span.sk{border-color:rgba(232,151,90,.4);color:#E8975A}
-.row .r-dur{font-family:var(--mono);font-size:12px;color:#83807A;text-align:right;white-space:nowrap}
-.row .cover-link{border-radius:0}
+/* EP 列表 · 月历档案双栏（方案 A v2） */
+.mhead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:30px 0 4px;padding-bottom:8px;border-bottom:1px solid #2B2A25}
+.mhead b{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.06em;color:#E8975A}
+.mhead span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:#83807A}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+.vitem{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:baseline;padding:12px 4px;border-bottom:1px solid #22211D;position:relative}
+.vitem:last-child{border-bottom:none}
+.vitem:hover{background:#241A15}
+.vep{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;color:#8A877E}
+.vitem:hover .vep{color:#E8975A}
+.vtitle{font-size:14px;font-weight:600;line-height:1.55;color:#EFEDE6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vitem:hover .vtitle{color:#E8975A}
+.vmeta{font-family:var(--mono);font-size:11px;color:#83807A;white-space:nowrap;text-align:right}
+.vmeta .chip{display:inline-block;font-size:10px;padding:1px 7px;border-radius:999px;border:1px solid #2B2A25;color:#8A877E;margin-right:5px}
+.vmeta .chip.sk{border-color:rgba(232,151,90,.4);color:#E8975A}
+.vitem .cover-link{border-radius:0}
+.vlist .empty{padding:20px 6px;font-family:var(--mono);font-size:12px;color:#83807A}
 @media(max-width:760px){
-  .row{grid-template-columns:52px 1fr;row-gap:6px}
-  .row .r-title{white-space:normal}
-  .row .r-chips{grid-column:2;justify-content:flex-start}
-  .row .r-dur{grid-column:2;text-align:left}
+  .mgrid{grid-template-columns:1fr}
+  .vitem{grid-template-columns:44px 1fr;row-gap:2px}
+  .vmeta{grid-column:2;text-align:left}
 }
 
 /* 放映厅底栏 */
@@ -274,24 +271,36 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
     </article>
     {% endif %}
 
-    <div class="rows">
+    <div class="vlist">
       {% assign rest = "" | split: "," %}
       {% for e in eps %}{% unless e == feat %}{% assign rest = rest | push: e %}{% endunless %}{% endfor %}
       {% if rest.size == 0 %}
         <p class="empty">更多期数更新中。</p>
       {% else %}
+        {% assign mkeys = "" | split: "," %}
+        {% for e in rest %}{% assign m = e.date | date: "%Y-%m" %}{% unless mkeys contains m %}{% assign mkeys = mkeys | push: m %}{% endunless %}{% endfor %}
+        {% assign mkeys = mkeys | sort | reverse %}
+        {% for m in mkeys %}
+        {% assign mcnt = 0 %}
+        {% for e in rest %}{% assign em = e.date | date: "%Y-%m" %}{% if em == m %}{% assign mcnt = mcnt | plus: 1 %}{% endif %}{% endfor %}
+        <div class="mhead"><b>{{ m }}</b><span>{{ mcnt }} EPISODES</span></div>
+        <div class="mgrid">
         {% for e in rest %}
-        {% assign e_url = e.url %}
-        {% if e_url == blank or e_url == empty %}{% assign e_url = videos.channel %}{% endif %}
-        <div class="row">
-          <span class="r-ep">EP.{{ e.ep }}</span>
-          <span class="r-title">{{ e.title }}</span>
-          <span class="r-chips">
-            {% if e.pdf %}<span>PDF{% if e.pdf.size > 1 %}×{{ e.pdf.size }}{% endif %}</span>{% endif %}
-            {% if e.skill %}<span class="sk">SKILL</span>{% endif %}
-          </span>
-          <span class="r-dur">{{ e.date | date: "%Y.%m.%d" }}{% if e.duration and e.duration != "" %} · {{ e.duration }}{% endif %}</span>
-          <a class="cover-link" href="{{ e_url }}" target="_blank" rel="noopener" aria-label="在 B 站观看第 {{ e.ep }} 期：{{ e.title }}"></a>
+          {% assign em = e.date | date: "%Y-%m" %}
+          {% if em == m %}
+          {% assign e_url = e.url %}
+          {% if e_url == blank or e_url == empty %}{% assign e_url = videos.channel %}{% endif %}
+          <a class="vitem" href="{{ e_url }}" target="_blank" rel="noopener" aria-label="在 B 站观看第 {{ e.ep }} 期：{{ e.title }}">
+            <span class="vep">EP.{{ e.ep }}</span>
+            <span class="vtitle">{{ e.title }}</span>
+            <span class="vmeta">
+              {% if e.pdf %}<span class="chip">PDF{% if e.pdf.size > 1 %}×{{ e.pdf.size }}{% endif %}</span>{% endif %}
+              {% if e.skill %}<span class="chip sk">SKILL</span>{% endif %}
+              {{ e.date | date: "%m.%d" }}{% if e.duration and e.duration != "" %} · {{ e.duration }}{% endif %}
+            </span>
+          </a>
+          {% endif %}
+        {% endfor %}
         </div>
         {% endfor %}
       {% endif %}
