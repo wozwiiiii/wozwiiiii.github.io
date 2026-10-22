@@ -65,6 +65,18 @@ def fetch_videos():
         total = ((res.get('data') or {}).get('page') or {}).get('count') or 0
         if len(out) >= total or not vlist: break
         pn += 1; time.sleep(1)
+    # 2) 逐个取视频详情 → B站合集归属（group），站上分组自动跟随 B站合集
+    for v in out:
+        try:
+            req = urllib.request.Request('https://api.bilibili.com/x/web-interface/view?bvid=%s' % v['bvid'],
+                                         headers={'User-Agent': UA, 'Referer': 'https://www.bilibili.com/'})
+            d = json.loads(op.open(req, timeout=20).read()).get('data') or {}
+            season = d.get('ugc_season') or {}
+            g = (season.get('title') or '').replace('合集 · ', '').replace('合集:', '').strip()
+            v['group'] = g
+        except Exception:
+            v['group'] = ''
+        time.sleep(0.8)
     return out
 
 def parse_manual(text):
@@ -96,6 +108,7 @@ def main():
     # 离线模式：python make/update_videos.py <json路径>（跳过在线抓取，直接用已抓取数据）
     if len(sys.argv) > 1:
         src = json.load(open(sys.argv[1], encoding='utf-8'))
+        for v in src: v.setdefault('group', '')
         print('离线模式，视频数:', len(src))
     else:
         src = fetch_videos()
@@ -118,6 +131,7 @@ def main():
         if len(desc) > 90: desc = desc[:90].rstrip('，。；; ') + '……'
         if desc in ('-', ''): desc = v.get('title', '')
         buf = ['  - ep: %d' % idx,
+               '    group: %s' % yq(v.get('group', '')),
                '    title: %s' % yq(v.get('title', '')),
                '    desc: %s' % yq(desc),
                '    date: %s' % date,

@@ -277,17 +277,27 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
       {% if rest.size == 0 %}
         <p class="empty">更多期数更新中。</p>
       {% else %}
-        {% assign mkeys = "" | split: "," %}
-        {% for e in rest %}{% assign m = e.date | date: "%Y-%m" %}{% unless mkeys contains m %}{% assign mkeys = mkeys | push: m %}{% endunless %}{% endfor %}
-        {% assign mkeys = mkeys | sort | reverse %}
-        {% for m in mkeys %}
-        {% assign mcnt = 0 %}
-        {% for e in rest %}{% assign em = e.date | date: "%Y-%m" %}{% if em == m %}{% assign mcnt = mcnt | plus: 1 %}{% endif %}{% endfor %}
-        <div class="mhead"><b>{{ m }}</b><span>{{ mcnt }} EPISODES</span></div>
+        {% comment %} 合集分组：组序=组内最新一期降序；无合集归入「未归类」 {% endcomment %}
+        {% assign rev = rest | reverse %}
+        {% assign gkeys = "" | split: "," %}
+        {% for e in rev %}
+          {% assign g = e.group | strip %}
+          {% if g == "" %}{% assign g = "未归类" %}{% endif %}
+          {% unless gkeys contains g %}{% assign gkeys = gkeys | push: g %}{% endunless %}
+        {% endfor %}
+        {% for g in gkeys %}
+        {% assign gcnt = 0 %}
+        {% for e in rev %}
+          {% assign eg = e.group | strip %}
+          {% if eg == "" %}{% assign eg = "未归类" %}{% endif %}
+          {% if eg == g %}{% assign gcnt = gcnt | plus: 1 %}{% endif %}
+        {% endfor %}
+        <div class="mhead"><b>{{ g }}</b><span>{{ gcnt }} 期</span></div>
         <div class="mgrid">
-        {% for e in rest %}
-          {% assign em = e.date | date: "%Y-%m" %}
-          {% if em == m %}
+        {% for e in rev %}
+          {% assign eg = e.group | strip %}
+          {% if eg == "" %}{% assign eg = "未归类" %}{% endif %}
+          {% if eg == g %}
           {% assign e_url = e.url %}
           {% if e_url == blank or e_url == empty %}{% assign e_url = videos.channel %}{% endif %}
           <a class="vitem" href="{{ e_url }}" target="_blank" rel="noopener" aria-label="在 B 站观看第 {{ e.ep }} 期：{{ e.title }}">
