@@ -1,55 +1,145 @@
 # B 站视频数据 · works 页与首页「最新一期」视频条共用
 #
-# TODO: 替换为真实视频标题（B站空间页 JS 渲染无法抓取）
-# TODO: title / desc / date / duration 均为占位文案，拿到真实信息后逐期替换
-# TODO: 拿到单期 BV 链接后，把对应期的 url 从 "" 改为 BV 号（如 https://www.bilibili.com/video/BVxxxx）
+# 字段说明：
+#   ep        期数（按发布时间从旧到新递增）
+#   title/desc/date/duration/url  以 B站 API 为准（真实数据）
+#   cover     封面路径，空串 → 暗色渐变占位
+#   featured  精选期（works 大卡 + 首页视频条取此期，全站仅一期 true）
+#   pdf       配套思维导图文件名（对应 my-source 仓库 知识点汇总/<日期>/ 下真实文件），有才写
+#   skill     配套 skill 目录名（对应 my_source/my_skill/），有才写
 #
-# channel：B 站空间，全站唯一视频出口（works 页底栏、首页视频条跳转兜底）
+# 自动更新：python make/update_videos.py（在线拉取；被风控 -352 时可稍后重试，
+#          或 python make/update_videos.py <已抓取的json> 离线更新）
+# 手工字段（pdf/skill/featured/cover）按 BV 号自动保留，不会被脚本覆盖。
+
 channel: https://b23.tv/PICJzQY
 
-# episodes：
-#   ep        期数（数字）
-#   title     标题（占位）
-#   desc      一句话简介（占位）
-#   date      上传日期（占位；真实已知：思维导图于 2026-10-07 上传仓库）
-#   duration  时长（占位）
-#   cover     封面图路径，空串 → 暗色渐变占位
-#   url       单期链接，空串 → 跳 B 站空间
-#   featured  精选期标记（works 页大卡、首页视频条取此期）
-#   pdf       本期配套思维导图文件名（对应 my-source 仓库 知识点汇总/<日期>/ 下真实文件），存在才渲染 chip
-#   skill     本期配套 skill 目录名（对应 my_source/my_skill/ 下真实目录），存在才渲染 chip
 episodes:
   - ep: 1
-    title: （占位标题）RAG 检索问答：从原理到工程落地
-    desc: （占位简介）讲解 RAG 检索问答的原理、分块检索与工程化细节，配套思维导图免费自取。
-    date: 2026-10-07
-    duration: "12:34"
+    title: "聊聊我正在走的Agent自学路径，第一次尝试记录"
+    desc: "第一次录这类学习记录，没有稿子，观感一般请多包涵。 分享我自己摸索Agent的学习思路，全部参考开源项目，无需付费。只是个人想法，不一定完全正确，欢迎大佬指正。同时其中内容均为Da……"
+    date: 2026-09-24
+    duration: "12:36"
     cover: ""
-    url: ""
-    featured: true
-    pdf: [RAG_1.pdf, RAG_2.pdf]
-    skill: campus-written-test-generator
+    url: https://www.bilibili.com/video/BV1txaT6nERZ
+    featured: false
   - ep: 2
-    title: （占位标题）常见 Agent 产品拆解
-    desc: （占位简介）对比分析常见 Agent 产品的设计思路与产品特色。
-    date: 2026-10-07
-    duration: "09:41"
+    title: "自学Agent｜捋一捋我个人理解的Prompt、Skill、MCP"
+    desc: "分享我自学过程中，对Prompt、Skill、MCP的一点理解。仅代表个人学习笔记，不一定完全正确，欢迎大家指正交流"
+    date: 2026-09-27
+    duration: "08:03"
     cover: ""
-    url: ""
-    pdf: [常见agent产品特色.pdf]
-    skill: campus-ai-interview-builder
+    url: https://www.bilibili.com/video/BV1zDaa6gEc6
+    featured: false
   - ep: 3
-    title: （占位标题）生产应用开发流程（自主版）
-    desc: （占位简介）从 0 到 1 走一遍生产环境下的 AI 应用开发流程。
-    date: 2026-10-07
-    duration: "15:07"
+    title: "双非一本大四｜临近毕业，聊聊我真实的成长思考"
+    desc: "快读完四年大学，临近毕业有很多乱七八糟的想法。没有过来人的成功经验，只是一个双非学生的真实复盘与唠叨。如果你也处在迷茫纠结的阶段，欢迎一起交流。"
+    date: 2026-09-29
+    duration: "35:06"
     cover: ""
-    url: ""
-    pdf: [生产应用开发流程（自主）.pdf]
+    url: https://www.bilibili.com/video/BV1WAap6HEuX
+    featured: false
   - ep: 4
-    title: （占位标题）更多主题，敬请期待
-    desc: （占位简介）下一期规划中，更新后本页自动补充。
-    date: 2026-10-07
-    duration: ""
+    title: "秋招备考日常｜我自用的全套学习&面试工作流"
+    desc: "这是我整理的秋招面试全流程工作流，从简历准备、笔试面试到复盘总结，每个环节都有我自己的思考和实用技巧。 还分享了我常用的AI工具使用思路，希望能帮到正在准备秋招的你。如果你有更好的……"
+    date: 2026-09-30
+    duration: "15:19"
     cover: ""
-    url: ""
+    url: https://www.bilibili.com/video/BV1yEa96rEsB
+    featured: false
+  - ep: 5
+    title: "个人学习笔记-简单捋一捋这四个AI Agent高频名词"
+    desc: "最近在学Agent相关内容，整理下我对这四个高频名词的认知。仅代表个人学习后的想法，不是权威教程。如果有理解不对的地方，欢迎大家在评论区一起讨论。"
+    date: 2026-10-01
+    duration: "22:12"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1DHYw6rEGw
+    featured: false
+  - ep: 6
+    title: "新手视角拆解：Harness层的核心逻辑与完整流程"
+    desc: "这期拆解了它的边界定义、核心职责和完整运行流程，适合刚入门Agent的同学参考。内容是我自学后的理解（为对应的八股文梳理学习），不是权威教程，有理解偏差欢迎在评论区讨论。"
+    date: 2026-10-03
+    duration: "07:25"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1rkHa6JEgB
+    featured: false
+  - ep: 7
+    title: "新手向梳理｜我理解的Claude Code工作逻辑"
+    desc: "简单研究、拆解了一下Claude Code。全程是自己边学边理解的个人思路，内容比较粗浅，仅做学习记录与分享。有理解不对的地方，欢迎大家多多指正，一起交流进步。"
+    date: 2026-10-04
+    duration: "10:19"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1RMHz6dEPG
+    featured: false
+  - ep: 8
+    title: "主流Agent工具简单特色解析：Pi、hermes、Codex和OpenCode"
+    desc: "横向梳理市面Agent工具，简单分析各个agent产品在各自对应特色如记忆闭环、Skill能力、工具调用调度、生态方面的简单分析。"
+    date: 2026-10-07
+    duration: "05:55"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1baH16eEGc
+    featured: false
+  - ep: 9
+    title: "RAG三代演进梳理｜从基础检索到Agentic模块化RAG"
+    desc: "很多人做RAG只知道文档切块+向量检索，但RAG不是只有简单文档检索，这只是初代Native RAG。RAG已经迭代三代，Advanced做精细化检索优化，Modular Agen……"
+    date: 2026-10-07
+    duration: "09:39"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1CFH16xEo8
+    featured: false
+  - ep: 10
+    title: "Advanced RAG完整工程流程｜从数据处理到回答生成"
+    desc: "拆解Advanced RAG工程实现。包含多类型文档解析、文本分块策略、数据清洗、混合检索、Rerank重排、动态K值等；针对幻觉、Lost in the middle、上下文不足……"
+    date: 2026-10-07
+    duration: "13:05"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1BGH167Ep5
+    featured: false
+  - ep: 11
+    title: "生产级AI应用开发全流程｜spec、开发、上线维护完整链路梳理"
+    desc: "AI应用不是写完代码就完事。这期梳理了生产级AI应用三阶段：spec需求定义、make开发验证、maintain上线闭环维护。简单介绍OpenSpec、Superpower、gst……"
+    date: 2026-10-07
+    duration: "13:42"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1kcH16REf7
+    featured: false
+  - ep: 12
+    title: "AI应用框架｜梳理大模型应用背后的整体框架"
+    desc: "做大模型应用开发，离不开AI应用框架。梳理一些AI应用框架相关核心要点，避开认知误区。"
+    date: 2026-10-10
+    duration: "11:34"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1Xupe6CEkr
+    featured: false
+  - ep: 13
+    title: "RAG工程化基础梳理-从数据处理到评估全流程梳理"
+    desc: "本期视频梳理了RAG（检索增强生成）工程化全流程，涵盖数据处理、文档分块、向量化、检索策略、评估方法等核心环节，梳理了各阶段关键要点和内容，适合RAG入门学习者快速了解基础内容。"
+    date: 2026-10-12
+    duration: "36:02"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1zjpd6EE8f
+    featured: false
+  - ep: 14
+    title: "个人工具、阶段总结和后期规划"
+    desc: "个人工具、阶段总结和后期规划"
+    date: 2026-10-15
+    duration: "24:02"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1Rgpm6nE1j
+    featured: false
+  - ep: 15
+    title: "模拟面试1（自问自答，观感可能不好，介意慎入）"
+    desc: "模拟面试的第一次尝试，岗位方向：AI开发、技术支持、产品开发"
+    date: 2026-10-15
+    duration: "23:01"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1eVpm6EEcL
+    featured: false
+  - ep: 16
+    title: "个人项目拆解1（deepsearch）"
+    desc: "基于开源项目的个人项目改造拆解"
+    date: 2026-10-19
+    duration: "17:46"
+    cover: ""
+    url: https://www.bilibili.com/video/BV1ScnV6rEmR
+    featured: true
