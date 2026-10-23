@@ -214,11 +214,28 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
   *{animation:none!important;transition:none!important}
   .anim{opacity:1}
 }
+/* ============ 页内章节条（sticky，走廊导航下方） ============ */
+.hnav{position:sticky;top:64px;z-index:40;display:flex;gap:6px;overflow-x:auto;overflow-y:visible;background:var(--paper);border-bottom:1px solid var(--ink-100);padding:9px 28px;scrollbar-width:none}
+.hnav::-webkit-scrollbar{display:none}
+.hchip{flex-shrink:0;font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink-500);padding:4px 11px;border-radius:999px;border:1px solid var(--ink-100);white-space:nowrap;transition:color .16s,border-color .16s}
+.hchip:hover{color:var(--accent);border-color:var(--accent)}
+.hchip.cur{color:var(--accent);border-color:var(--accent);font-weight:600}
+section.blk,.hero{scroll-margin-top:120px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 
 {% include corridor-nav.html %}
+
+<nav class="hnav" aria-label="页内章节导航">
+  <a class="hchip" href="#top">概览</a>
+  <a class="hchip" href="#approach">做事方式</a>
+  <a class="hchip" href="#projects">项目</a>
+  <a class="hchip" href="#videos">视频</a>
+  <a class="hchip" href="#writing">文章</a>
+  <a class="hchip" href="#contact">联系</a>
+</nav>
 
 <!-- ============ HERO ============ -->
 <header class="hero" id="top">
@@ -365,7 +382,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
 </section>
 
 <!-- ============ 视频（琥珀只在此处出现，预告暗场） ============ -->
-<section class="blk">
+<section class="blk" id="videos">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" style="color:var(--amber)">NOW ON BILIBILI</span>
@@ -418,7 +435,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
 </section>
 
 <!-- ============ POSTS（site.posts 前 3 篇自动注入） ============ -->
-<section class="blk">
+<section class="blk" id="writing">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow">WRITING</span>
@@ -521,6 +538,23 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:8px}
     }
     setTimeout(function(){requestAnimationFrame(step)},480); /* 与入场编排衔接 */
   });
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var map={};
+  document.querySelectorAll('.hchip').forEach(function(c){map[c.getAttribute('href').slice(1)]=c;});
+  var targets=Object.keys(map).map(function(id){return document.getElementById(id)}).filter(Boolean);
+  function setCur(id){
+    Object.keys(map).forEach(function(k){map[k].classList.toggle('cur',k===id)});
+    var cur=map[id];
+    if(cur){var bar=cur.parentElement;bar.scrollTo({left:cur.offsetLeft-bar.offsetWidth/2+cur.offsetWidth/2,behavior:'smooth'});}
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(en){if(en.isIntersecting)setCur(en.target.id)});
+  },{rootMargin:'-15% 0px -70% 0px'});
+  targets.forEach(function(t){io.observe(t)});
 })();
 </script>
 {% include corridor-scripts.html %}
