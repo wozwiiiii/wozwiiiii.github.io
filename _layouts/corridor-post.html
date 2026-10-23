@@ -1,7 +1,9 @@
 ---
 layout: corridor
 ---
-{% comment %} 文章页 · 编辑档案风阅读版式（题头 mono 元信息 + prose 正文） {% endcomment %}
+{% comment %} 文章页 · 编辑档案风阅读版式 + 章节导航（A 桌面 TOC / B 移动章节条 / D 章尾下一章） {% endcomment %}
+{% comment %} ---- 目录提取：kramdown 自动为 h2 生成 id，从渲染后 content 切分 ---- {% endcomment %}
+{% assign h2parts = content | split: '<h2 id="' %}
 <article class="wrap">
   <header class="page-head">
     <span class="eyebrow">{{ page.date | date: "%Y.%m.%d" }}{% if page.period %} · {{ page.period }}{% endif %}</span>
@@ -9,13 +11,102 @@ layout: corridor
     {% if page.description %}<p class="sub">{{ page.description }}</p>{% endif %}
     {% if page.tags %}<p class="sub mono" style="font-size:12px;letter-spacing:.04em">{% for t in page.tags %}{{ t }}{% unless forloop.last %} / {% endunless %}{% endfor %}</p>{% endif %}
   </header>
-  <div class="prose">
-    {{ content }}
+
+  {% if h2parts.size > 1 %}
+  {% comment %} B · 移动端章节条（<1320px 显示） {% endcomment %}
+  <nav class="chapbar" aria-label="章节导航">
+    {% for part in h2parts offset:1 %}
+    {% assign cid = part | split: '"' | first %}
+    {% assign crest = part | split: '</h2>' | first %}
+    {% assign ctitle = crest | split: '>' | last %}
+    <a class="cchip" href="#{{ cid }}" data-toc="{{ cid }}">{{ ctitle }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  <div class="prose" id="postbody">
+{% assign secs = content | split: '<h2 id="' %}
+    {{ secs.first }}
+{% for part in h2parts offset:1 %}
+    {% assign nid = part | split: '"' | first %}
+    {% assign nrest = part | split: '</h2>' | first %}
+    {% assign ntitle = nrest | split: '>' | last %}
+    {% if forloop.index0 > 0 %}
+    <p class="nextsec">下一章 <a href="#{{ nid }}">{{ ntitle }}</a> →</p>
+    {% endif %}
+    <h2 id="{{ part }}
+{% endfor %}
   </div>
+
   <p class="backline"><a href="{{ '/blog/' | relative_url }}">← 返回博客索引</a></p>
 </article>
+
+{% if h2parts.size > 1 %}
+{% comment %} A · 桌面右侧 sticky TOC（≥1320px 显示） {% endcomment %}
+<aside class="toc" aria-label="文章目录">
+  <p class="toc-cap">本文目录</p>
+  {% for part in h2parts offset:1 %}
+  {% assign tid = part | split: '"' | first %}
+  {% assign trest = part | split: '</h2>' | first %}
+  {% assign ttitle = trest | split: '>' | last %}
+  <a class="titem" href="#{{ tid }}" data-toc="{{ tid }}">{{ ttitle }}</a>
+  {% endfor %}
+</aside>
+{% endif %}
+
 <style>
-.backline{padding:6px 0 20px;font-family:var(--mono);font-size:13px}
-.backline a{color:var(--ink-500);border-bottom:1px solid var(--ink-200);padding-bottom:2px;transition:color .16s}
-.backline a:hover{color:var(--accent);border-color:var(--accent)}
+/* ============ B · 移动章节条 ============ */
+.chapbar{position:sticky;top:64px;z-index:40;display:flex;gap:6px;overflow-x:auto;background:var(--paper);border-bottom:1px solid var(--ink-100);padding:8px 28px;scrollbar-width:none}
+.chapbar::-webkit-scrollbar{display:none}
+.cchip{flex-shrink:0;font-family:var(--mono);font-size:11.5px;color:var(--ink-500);padding:3px 10px;border-radius:999px;border:1px solid var(--ink-100);white-space:nowrap;transition:color .16s,border-color .16s}
+.cchip:hover{color:var(--accent);border-color:var(--accent)}
+.cchip.cur{color:var(--accent);border-color:var(--accent);font-weight:600}
+@media(min-width:1320px){.chapbar{display:none}}
+
+/* ============ A · 桌面 sticky TOC ============ */
+.toc{display:none;position:fixed;top:110px;right:max(24px,calc((100vw - 880px)/2 - 226px));width:200px;max-height:calc(100vh - 160px);overflow-y:auto}
+@media(min-width:1320px){.toc{display:block}}
+.toc-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400);margin-bottom:10px}
+.titem{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink-500);padding:5px 0 5px 12px;border-left:2px solid var(--ink-100);line-height:1.5;transition:color .16s,border-color .16s}
+.titem:hover{color:var(--accent)}
+.titem.cur{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+
+/* ============ D · 章尾下一章 ============ */
+.nextsec{font-family:var(--mono);font-size:12.5px;color:var(--ink-400);border-top:1px dashed var(--ink-200);margin:36px 0 0;padding:12px 0 0}
+.nextsec a{color:var(--ink-800);border-bottom:1px solid var(--ink-200);padding-bottom:2px;transition:color .16s}
+.nextsec a:hover{color:var(--accent);border-color:var(--accent)}
+
+/* 章节标题跳转留白（sticky 导航 64 + 章节条 ~40） */
+.prose h2{scroll-margin-top:120px}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+
+<script>
+(function(){
+  'use strict';
+  /* 当前章节高亮：观察 prose 内的 h2 */
+  var heads=document.querySelectorAll('#postbody h2[id]');
+  var links=document.querySelectorAll('[data-toc]');
+  if(!heads.length||!links.length)return;
+  var byId={};
+  links.forEach(function(l){byId[l.getAttribute('data-toc')]=l;});
+  function setCur(id){
+    links.forEach(function(l){l.classList.toggle('cur',l.getAttribute('data-toc')===id)});
+    var cur=byId[id];
+    if(cur&&cur.classList.contains('cchip')){
+      var bar=cur.parentElement;
+      var left=cur.offsetLeft-bar.offsetWidth/2+cur.offsetWidth/2;
+      bar.scrollTo({left:Math.max(left,0),behavior:'smooth'});
+    }
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting)setCur(en.target.id);
+    });
+  },{rootMargin:'-15% 0px -70% 0px'});
+  heads.forEach(function(h){io.observe(h)});
+  /* 首屏默认第一节 */
+  if(heads[0])setCur(heads[0].id);
+})();
+</script>
