@@ -193,6 +193,16 @@ a{color:inherit;text-decoration:none}
 .skill-card .lnk:hover{text-decoration:underline}
 .skill-card .lnk svg{width:12px;height:12px}
 
+/* ============ 页内章节条（sticky） ============ */
+.wnav{position:sticky;top:64px;z-index:40;display:flex;gap:6px;background:var(--paper);border-bottom:1px solid var(--ink-100);padding:9px 28px;scrollbar-width:none}
+.wnav::-webkit-scrollbar{display:none}
+.wchip{font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink-500);padding:4px 11px;border-radius:999px;border:1px solid var(--ink-100);white-space:nowrap;margin-right:6px;transition:color .16s,border-color .16s}
+.wchip:hover{color:var(--accent);border-color:var(--accent)}
+.wchip.cur{color:var(--accent);border-color:var(--accent);font-weight:600}
+.hall,.shelf,.skill-head{scroll-margin-top:120px}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
 /* ============ 页脚 ============ */
 footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
 .foot-in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-500)}
@@ -225,8 +235,14 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
 
 {% include corridor-nav.html %}
 
+<nav class="wnav" aria-label="页内章节导航">
+  <a class="wchip" href="#hall">放映厅</a>
+  <a class="wchip" href="#shelf">资料架</a>
+  <a class="wchip" href="#skills">Skill 工具</a>
+</nav>
+
 <!-- ============ 墨黑放映厅 ============ -->
-<section class="hall">
+<section class="hall" id="hall">
   <div class="wrap">
     <span class="hall-tag"><i></i>NOW SHOWING · 放映厅</span>
     <div class="hall-head">
@@ -332,7 +348,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
 </div>
 
 <!-- ============ 纸面资料架 ============ -->
-<section class="shelf">
+<section class="shelf" id="shelf">
   <div class="wrap">
     <a class="repo-chip" href="https://github.com/wozwiiiii/my-source" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
@@ -374,7 +390,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
 
     <!-- Skill 工具区 -->
     {% assign skills = site.data.skills %}
-    <div class="skill-head">
+    <div class="skill-head" id="skills">
       <span class="path">Skill 工具 / my_source/my_skill</span>
       <span class="cnt">{{ skills.size }} 个 · 部分视频配套 · 覆盖经历到面试全链路</span>
     </div>
@@ -448,6 +464,18 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
       if (ev.key === 'Escape' && menu.classList.contains('open')) setMenu(false);
     });
   }
+
+  /* 页内章节高亮 */
+  var map={};
+  document.querySelectorAll('.wchip').forEach(function(c){map[c.getAttribute('href').slice(1)]=c;});
+  var targets=Object.keys(map).map(function(id){return document.getElementById(id)}).filter(Boolean);
+  function setCur(id){
+    Object.keys(map).forEach(function(k){map[k].classList.toggle('cur',k===id)});
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(en){if(en.isIntersecting)setCur(en.target.id)});
+  },{rootMargin:'-15% 0px -70% 0px'});
+  targets.forEach(function(t){io.observe(t)});
 })();
 </script>
 
