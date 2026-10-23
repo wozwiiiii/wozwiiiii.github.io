@@ -192,10 +192,10 @@ ModelCallLimitMiddleware(run_limit=80, thread_limit=300, exit_behavior="error")
 ## 如实声明的已知限制
 
 1. **未部署上线**：项目代码完成，已在真实 LLM + MySQL 环境完成四轮全量评测，但未部署上线、无真实用户；下一步是部署上线与真实用户验证
-2. **CI/CD**：`.github/workflows/ci.yml`已创建文件但未提交；后端无Dockerfile
+2. **CI/CD**：`.github/workflows/ci.yml` 已提交（pytest + 前端 tsc 检查）；后端无Dockerfile
 3. **内容安全**：ClamAV、模型输出审核、提示注入防护未做
 4. **认证升级**：API Key适合个人/小团队，对外多用户需换OIDC+JWT
 
 ## GitHub
 
-[wozwiiiii/hello-agents-my-build](https://github.com/wozwiiiii/hello-agents-my-build.git)
+[wozwiiiii/deepsearch-agent-try](https://github.com/wozwiiiii/deepsearch-agent-try)

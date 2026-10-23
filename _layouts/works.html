@@ -355,22 +355,10 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
       github.com/wozwiiiii/my-source
     </a>
 
-    <!-- 思维导图区：以仓库目录为统一入口（文件增删在 my-source 仓库进行，本页零改动） -->
-    <p class="shelf-note">以目录为统一入口 —— 全部思维导图托管在 my-source 仓库，点卡片打开对应 GitHub 目录页</p>
+    <!-- 思维导图区：以仓库目录为统一入口（目录清单在 videos.yml map_dirs 手工维护，须与 my-source 仓库实际目录逐字一致） -->
+    <p class="shelf-note">以目录为统一入口 —— 全部思维导图托管在 my-source 仓库，点卡片打开对应 GitHub 目录页（目录清单手工维护，仓库更新后同步 videos.yml）</p>
 
-    {% comment %} 从各期日期推导目录名（10月7日 格式，与仓库目录命名一致），同名去重 {% endcomment %}
-    {% assign dir_names = "" | split: "," %}
-    {% for e in eps %}
-      {% if e.date %}
-        {% assign dp = e.date | date: "%Y-%m-%d" | split: "-" %}
-        {% assign dm = dp[1] | plus: 0 %}
-        {% assign dd = dp[2] | plus: 0 %}
-        {% assign edn = dm | append: "月" | append: dd | append: "日" %}
-        {% unless dir_names contains edn %}
-          {% assign dir_names = dir_names | push: edn %}
-        {% endunless %}
-      {% endif %}
-    {% endfor %}
+    {% assign mdirs = videos.map_dirs | default: "" %}
 
     <div class="pdf-grid">
       <div class="pdf-card">
@@ -378,12 +366,11 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
         <span class="meta">全部讲解的总目录 · 含各期思维导图与素材</span>
         <a class="dl" href="{{ repo_base }}/{{ km_enc }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
-      {% for dn in dir_names %}
-        {% capture eplist %}{% for e in eps %}{% if e.date %}{% assign dp2 = e.date | date: "%Y-%m-%d" | split: "-" %}{% assign dm2 = dp2[1] | plus: 0 %}{% assign dd2 = dp2[2] | plus: 0 %}{% assign edn2 = dm2 | append: "月" | append: dd2 | append: "日" %}{% if edn2 == dn %}EP.{{ e.ep }}、{% endif %}{% endif %}{% endfor %}{% endcapture %}
+      {% for m in mdirs %}
         <div class="pdf-card">
-          <span class="name">知识点汇总 / {{ dn }}</span>
-          <span class="meta">{{ eplist | split: "、" | join: "、" }} 配套思维导图</span>
-          <a class="dl" href="{{ repo_base }}/{{ km_enc }}/{{ dn | url_encode }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <span class="name">知识点汇总 / {{ m.dir }}</span>
+          <span class="meta">{{ m.eps }} 配套思维导图</span>
+          <a class="dl" href="{{ repo_base }}/{{ km_enc }}/{{ m.dir | url_encode }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
       {% endfor %}
     </div>

@@ -1,4 +1,4 @@
-# Skill 工具数据 · works 页「Skill 工具区」使用（5 条，低频手工维护）
+# Skill 工具数据 · works 页「Skill 工具区」使用（7 条，低频手工维护）
 #
 # 数据来源：github.com/wozwiiiii/my-source 仓库 my_source/my_skill/ 下真实目录
 # tag 用「场景 + 阶段」复合式，取自仓库 README 的需求路由表
@@ -28,3 +28,13 @@
   tag: 面试
   desc: 校招面试题生成器，模拟面试官视角出题：有项目强制锚定真实模块，附【评分要点】与【追问方向】。
   path: my_source/my_skill/campus-ai-interview-builder
+
+- name: bilibili-video-copywriting
+  tag: 视频·物料
+  desc: B 站发布物料生成助手：输入主题/思维导图/视频链接，输出三套成套物料（主投稿版｜切片流量版｜深度版），每套 3 标题 + 简介 + Tag。
+  path: my_source/my_skill/bilibili-video-copywriting
+
+- name: project-code-qa
+  tag: 代码·问答
+  desc: 项目代码问答助手。只读取证、结论必附「文件:行号」证据、三级可信度标注，用于快速读懂开源项目或 AI 应用架构。
+  path: my_source/my_skill/project-code-qa
