@@ -18,7 +18,7 @@ layout: corridor
     {% for part in h2parts offset:1 %}
     {% assign cid = part | split: '"' | first %}
     {% assign crest = part | split: '</h2>' | first %}
-    {% assign ctitle = crest | split: '>' | last %}
+    {% assign ctitle = crest | strip_html | split: '"' | last | remove: '>' | strip %}
     <a class="cchip" href="#{{ cid }}" data-toc="{{ cid }}">{{ ctitle }}</a>
     {% endfor %}
   </nav>
@@ -38,7 +38,7 @@ layout: corridor
   {% for part in h2parts offset:1 %}
   {% assign tid = part | split: '"' | first %}
   {% assign trest = part | split: '</h2>' | first %}
-  {% assign ttitle = trest | split: '>' | last %}
+  {% assign ttitle = trest | strip_html | split: '"' | last | remove: '>' | strip %}
   <a class="titem" href="#{{ tid }}" data-toc="{{ tid }}">{{ ttitle }}</a>
   {% endfor %}
 </aside>
