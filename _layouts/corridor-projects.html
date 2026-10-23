@@ -26,7 +26,6 @@ layout: corridor
       </div>
       <div class="proj-acts">
         <a class="pri" href="{{ p.github }}" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="#{{ p.anchor }}">详细拆解 ↓</a>
         <a href="{{ p.blog | relative_url }}">拆解文章 →</a>
       </div>
     </article>
@@ -34,13 +33,9 @@ layout: corridor
   </div>
 </div>
 
-<div class="wrap detail-head">
-  <span class="eyebrow" style="color:var(--ink-400)">DETAILS · 详细拆解</span>
-</div>
-<div class="wrap">
-  <div class="prose proj-detail">
-    {{ content }}
-  </div>
+<div class="wrap bloglink">
+  <p>三个项目的完整拆解都同步发布在博客，含架构、数据流与踩坑记录。</p>
+  <a class="more" href="{{ '/blog/' | relative_url }}">查看全部拆解文章 →</a>
 </div>
 
 <style>
@@ -48,7 +43,7 @@ layout: corridor
 .proj{border-top:1px solid var(--ink-900);margin-top:26px;padding:0 0 8px}
 .proj-item{display:grid;grid-template-columns:150px 1fr 140px;gap:30px;padding:30px 0;border-bottom:1px solid var(--ink-100)}
 .proj-side{font-family:var(--mono);font-size:11.5px;color:var(--ink-400);letter-spacing:.06em;line-height:2}
-.proj-side .idx{color:var(--accent);font-weight:700}
+.proj-side .idx{color:var(--accent);font-weight:700;font-size:22px;letter-spacing:.02em;display:block;line-height:1.2}
 .proj-main h3{font-size:19px;font-weight:750;color:var(--ink-900);letter-spacing:-.015em}
 .proj-main h3 .slug{font-family:var(--mono);font-size:11.5px;font-weight:400;color:var(--ink-400);letter-spacing:.04em;margin-left:10px}
 .proj-main .one{font-size:14.5px;color:var(--ink-600);margin-top:8px;line-height:1.75}
@@ -70,9 +65,5 @@ layout: corridor
 }
 
 /* ============ 详细拆解区 ============ */
-.detail-head{margin-top:52px;border-top:1px solid var(--ink-100);padding-top:26px}
-.proj-detail h2{scroll-margin-top:80px}
-.proj-detail h2 .p-idx{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-right:10px;vertical-align:2px}
-.proj-detail .back-top{float:right;font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink-400);border-bottom:none}
-.proj-detail .back-top:hover{color:var(--accent)}
-</style>
+.bloglink{margin-top:40px;border-top:1px solid var(--ink-100);padding-top:26px;padding-bottom:20px}
+.bloglink p{font-size:14.5px;color:var(--ink-600);margin-bottom:12px}</style>
