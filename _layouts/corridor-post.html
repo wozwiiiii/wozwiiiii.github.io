@@ -25,17 +25,7 @@ layout: corridor
   {% endif %}
 
   <div class="prose" id="postbody">
-{% assign secs = content | split: '<h2 id="' %}
-    {{ secs.first }}
-{% for part in h2parts offset:1 %}
-    {% assign nid = part | split: '"' | first %}
-    {% assign nrest = part | split: '</h2>' | first %}
-    {% assign ntitle = nrest | split: '>' | last %}
-    {% if forloop.index0 > 0 %}
-    <p class="nextsec">下一章 <a href="#{{ nid }}">{{ ntitle }}</a> →</p>
-    {% endif %}
-    <h2 id="{{ part }}
-{% endfor %}
+    {{ content }}
   </div>
 
   <p class="backline"><a href="{{ '/blog/' | relative_url }}">← 返回博客索引</a></p>
@@ -56,25 +46,20 @@ layout: corridor
 
 <style>
 /* ============ B · 移动章节条 ============ */
-.chapbar{position:sticky;top:64px;z-index:40;display:flex;gap:6px;overflow-x:auto;background:var(--paper);border-bottom:1px solid var(--ink-100);padding:8px 28px;scrollbar-width:none}
+.chapbar{position:sticky;top:64px;z-index:40;display:flex;gap:6px;overflow-x:auto;overflow-y:visible;background:var(--paper);border-bottom:1px solid var(--ink-100);padding:9px 28px;scrollbar-width:none}
 .chapbar::-webkit-scrollbar{display:none}
-.cchip{flex-shrink:0;font-family:var(--mono);font-size:11.5px;color:var(--ink-500);padding:3px 10px;border-radius:999px;border:1px solid var(--ink-100);white-space:nowrap;transition:color .16s,border-color .16s}
+.cchip{flex-shrink:0;font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink-500);padding:4px 11px;border-radius:999px;border:1px solid var(--ink-100);white-space:nowrap;transition:color .16s,border-color .16s}
 .cchip:hover{color:var(--accent);border-color:var(--accent)}
 .cchip.cur{color:var(--accent);border-color:var(--accent);font-weight:600}
-@media(min-width:1320px){.chapbar{display:none}}
+@media(min-width:1380px){.chapbar{display:none}}
 
 /* ============ A · 桌面 sticky TOC ============ */
 .toc{display:none;position:fixed;top:110px;right:max(24px,calc((100vw - 880px)/2 - 226px));width:200px;max-height:calc(100vh - 160px);overflow-y:auto}
-@media(min-width:1320px){.toc{display:block}}
+@media(min-width:1380px){.toc{display:block}}
 .toc-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400);margin-bottom:10px}
-.titem{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink-500);padding:5px 0 5px 12px;border-left:2px solid var(--ink-100);line-height:1.5;transition:color .16s,border-color .16s}
+.titem{display:block;font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--ink-500);padding:5px 0 5px 12px;border-left:2px solid var(--ink-100);transition:color .16s,border-color .16s}
 .titem:hover{color:var(--accent)}
 .titem.cur{color:var(--accent);border-left-color:var(--accent);font-weight:600}
-
-/* ============ D · 章尾下一章 ============ */
-.nextsec{font-family:var(--mono);font-size:12.5px;color:var(--ink-400);border-top:1px dashed var(--ink-200);margin:36px 0 0;padding:12px 0 0}
-.nextsec a{color:var(--ink-800);border-bottom:1px solid var(--ink-200);padding-bottom:2px;transition:color .16s}
-.nextsec a:hover{color:var(--accent);border-color:var(--accent)}
 
 /* 章节标题跳转留白（sticky 导航 64 + 章节条 ~40） */
 .prose h2{scroll-margin-top:120px}
