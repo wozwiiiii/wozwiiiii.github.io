@@ -54,7 +54,7 @@ layout: corridor
 @media(min-width:1380px){.chapbar{display:none}}
 
 /* ============ A · 桌面 sticky TOC ============ */
-.toc{display:none;position:fixed;top:110px;right:max(24px,calc((100vw - 880px)/2 - 226px));width:200px;max-height:calc(100vh - 160px);overflow-y:auto}
+.toc{display:none;position:fixed;top:110px;right:max(24px,calc((100vw - 880px)/2 - 226px));width:200px;max-height:calc(100vh - 160px);overflow-y:auto;overflow-x:hidden;overflow-wrap:anywhere}
 @media(min-width:1380px){.toc{display:block}}
 .toc-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-400);margin-bottom:10px}
 .titem{display:block;font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--ink-500);padding:5px 0 5px 12px;border-left:2px solid var(--ink-100);transition:color .16s,border-color .16s}
