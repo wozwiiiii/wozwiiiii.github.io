@@ -11,7 +11,7 @@ tags: [Agent, LangGraph, 安全, FastAPI, 生产化改造]
 
 ## 项目背景
 
-**诚实表述：** 本仓库基于开源教学项目deepsearch-agents（MIT协议，原始教学代码来自[didilili/deepsearch-agents](https://github.com/didilili/deepsearch-agents)）。正确定位是：**基于开源教学项目做了生产化改造**，覆盖路径穿越、SQL任意执行、横向越权、无认证、租户串台、无限流等14类问题，129个回归测试，而不是把整个项目说成从零自研。
+**诚实表述：** 本仓库基于开源教学项目deepsearch-agents（MIT协议，原始教学代码来自[didilili/deepsearch-agents](https://github.com/didilili/deepsearch-agents)）。正确定位是：**基于开源教学项目做了生产化改造**，覆盖路径穿越、SQL任意执行、横向越权、无认证、租户串台、无限流等14类问题，累计30笔提交、87个文件、+15165/−580行生产化改造，220个回归测试，而不是把整个项目说成从零自研。
 
 **解决什么问题：** 把"用户自然语言问题"调度到多来源工具（公开网络、MySQL业务库、RAGFlow知识库、文件工具）协同检索，并实时回传执行进度，最终以Markdown/PDF交付报告。
 
@@ -80,9 +80,8 @@ Markdown/PDF交付（文件接口改为thread_id驱动，服务端拼接路径�
 ModelCallLimitMiddleware(run_limit=80, thread_limit=300, exit_behavior="error")
 ```
 
-- 单次任务最多80次模型调用、单会话（跨重启累计）最多300次
+- 双层预算熔断：单任务 80 次调用 + 150 万 token，会话级 450 万 token 跨任务累计——提示注入或规划失控不会再空转烧钱
 - 超限抛异常由`run_deep_agent`捕获并经monitor告知前端
-- **诚实声明边界**：是调用次数上限，不是token预算；token级熔断仍是待做项
 
 **Checkpointer持久化：**
 
@@ -90,9 +89,33 @@ ModelCallLimitMiddleware(run_limit=80, thread_limit=300, exit_behavior="error")
 |---|---|---|
 | 原版 | `InMemorySaver` | 重启丢全部上下文 |
 | 已落地 | `AsyncSqliteSaver` | 持久化到checkpoints.sqlite3 |
-| 设计稿 | `AsyncPostgresSaver` | 多副本水平扩容，接口不变 |
+| Postgres 版 | `AsyncPostgresSaver` | 多副本水平扩容，与内存版/SQLite 版可切换，接口不变 |
 
-**多租户隔离根：** 复合键`{user_id}-{thread_id}`是task表主键、WS路由键、checkpointer thread_id的统一根。user_id限纯小写字母数字保证复合键无歧义。文档原话："复合键不动……这是多租户隔离的根，改它等于推倒重来。"
+**最终回答守卫拦截早停：** 主智能体可能在子任务未完成时提前输出最终回答（搜索还没跑完就说"根据以上信息……"）。守卫用三条件 AND 高精度判据拦截：是否所有子任务完成、是否有足够信息、是否达到最小执行轮数。实战 7 次触发 7 次救回、零误伤——没有误拦过正常的最终回答。
+
+**ContextVar 隐式上下文传递：** 向深层工具隐式注入会话目录与路由键，每次任务动态拼装工作环境指令；异步环境中任务隔离，不需要每层函数显式传参。
+
+**多租户隔离根：** 复合键`{user_id}-{thread_id}`是task表主键、WS路由键、checkpointer thread_id的统一根。user_id限纯小写字母数字保证复合键无歧义（若允许连字符，user_id="a-b" + thread_id="c" 会与 user_id="a" + thread_id="b-c" 冲突）。跨租户越权经专项测试验证均 404（bob 持自己密钥 + 相同 thread_id 访问 alice 文件，列表与下载均 404）。
+
+## 任务出进程与可靠性设计
+
+**任务出进程：** Agent 执行从 API 进程内迁出到独立 worker——ARQ Redis 队列 + PostgreSQL 任务表 + 独立 worker 进程。API 只负责接收请求和推送进度，长任务不再阻塞事件循环。保留 inline / redis 双模式开关，默认 inline 零依赖（开发测试用），生产用 redis。
+
+- **状态机三层守卫**：终态不可覆盖、worker 代际校验、FOR UPDATE 原子取消，防并发竞态
+- **事件回放断线不丢结果**：事件先落库（自增 seq 序号）再推送，WebSocket 断线重连按 last_seq 差量补发——相当于视频网站的"续播"
+- **600 秒任务硬超时**：asyncio.wait_for，防止任务永久"运行中"
+
+**线程池耗尽真因定位：** 最初怀疑同步工具阻塞事件循环，写并发探针实测证伪；继续排查发现真因是线程池耗尽——协程可以取消，但底层线程在执行阻塞调用时不可中断，超时任务占满线程池后新任务无法执行。用 SDK 原生超时参数修复，零新依赖。
+
+## 评测体系与评测驱动迭代
+
+**自建 45 条评测集**：SQL 事实问答（22 条）、任务路由（6 条）、网页检索（10 条）、多源综合（7 条）四类；判分 = 确定性子串判分 + LLM-as-judge 混合。
+
+**四轮全量评测通过率 66.7% → 80.0% → 88.9% → 91.1%（30/45 → 41/45）**，其中路由、网页、多源三类任务达到满分。
+
+- **污染样本单独标记**：限流或外部服务故障导致的评测失败单独标记留证、不计入结论——模型答错与环境故障必须区分，否则评测结论不可信
+- **文件生成意图硬约束**：45 条 query 零误拒，合法请求放行双向验证
+- **质量保障**：220 个 pytest 用例覆盖校验与隔离逻辑（mock 替换，无需真实 LLM/MySQL，本地约 10 秒跑完）；trace_id 结构化日志贯穿各层，生产路径 print 清零；P0–P3 四级缺陷清单近 30 项分批消化；两次代码审查发现并修复 7 个自身工程问题（UNION 漏补 LIMIT、非 ASCII 密钥 500、测试污染运行时目录等）
 
 ## 防护措施（14类问题修复）
 
@@ -152,7 +175,7 @@ ModelCallLimitMiddleware(run_limit=80, thread_limit=300, exit_behavior="error")
 
 ## 测试与完成状态
 
-129个回归测试，6秒全绿（mock掉`run_deep_agent`，纯打校验逻辑，不需要任何真实服务）：
+220个回归测试，本地约10秒跑完（mock掉`run_deep_agent`，纯打校验逻辑，不需要任何真实LLM/MySQL）。评测驱动迭代后测试规模从129扩至220：
 
 | 测试文件 | 用例数 | 覆盖领域 |
 |---|---|---|
@@ -162,18 +185,16 @@ ModelCallLimitMiddleware(run_limit=80, thread_limit=300, exit_behavior="error")
 | test_auth.py | 28 | API Key认证 + fail-closed + 非ASCII |
 | test_rate_limit.py | 7 | slowapi限流 |
 | test_checkpointer.py | 4 | SQLite持久化 + middleware透传 |
-| **合计** | **129** | — |
+| **合计（评测迭代后扩至）** | **220** | — |
 
-**完成状态：** 三批生产化改造（安全加固→认证与状态→限流与成本）+ 一次正式代码审查修复全部落地。
+**完成状态：** 三批生产化改造（安全加固→认证与状态→限流与成本）+ 正式代码审查修复 + 任务出进程改造（ARQ/Postgres/事件回放/硬超时）+ 评测驱动四轮迭代全部落地。
 
 ## 如实声明的已知限制
 
-1. **任务队列**：当前`asyncio.create_task`进程内执行，重启即丢。ARQ+Redis+Postgres设计稿已写但未实现
-2. **可观测性**：现状只有`print`，没有结构化日志/指标/告警
-3. **CI/CD**：`.github/workflows/ci.yml`已创建文件但未提交；后端无Dockerfile
-4. **内容安全**：ClamAV、模型输出审核、提示注入防护未做
-5. **认证升级**：API Key适合个人/小团队，对外多用户需换OIDC+JWT
-6. **token级预算熔断**：当前只有调用次数上限，无token累计熔断
+1. **未部署上线**：项目代码完成，已在真实 LLM + MySQL 环境完成四轮全量评测，但未部署上线、无真实用户；下一步是部署上线与真实用户验证
+2. **CI/CD**：`.github/workflows/ci.yml`已创建文件但未提交；后端无Dockerfile
+3. **内容安全**：ClamAV、模型输出审核、提示注入防护未做
+4. **认证升级**：API Key适合个人/小团队，对外多用户需换OIDC+JWT
 
 ## GitHub
 

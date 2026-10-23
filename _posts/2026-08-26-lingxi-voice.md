@@ -141,7 +141,50 @@ Worker内:
 | 缓存雪崩 | TTL随机化(base + random(0, 7200s)) |
 | 内存溢出 | `allkeys-lru` |
 
-## 数据模型（6张表）
+## LLM 文本预处理三级降级与 Prompt 外置
+
+教学文本中 90% 以上是普通文本，不需要 LLM 处理；只有多音字、数学符号、化学式等疑难内容才需要纠音。三级降级的思路是"能不调就不调，能少调就少调"：
+
+1. **第一级（规则引擎）**：正则和规则检测，纯文本直接通过——零 LLM 成本、零延迟
+2. **第二级（DeepSeek 纠正）**：命中疑难文本才调 LLM，temperature=0.1 追求确定性，JSON 结构化输出 + Pydantic 校验
+3. **第三级（本地兜底）**：LLM 全部失败时，本地确定性替换表保证符号读音不丢，服务不中断
+
+**Prompt 外置热更新**：Prompt 模板从代码剥离进数据库（版本化 + 60s 内存缓存 + 故障兜底）。不改代码、不重新部署即可热更新 Prompt/模型/参数，且版本/模型/参数三要素可归因——出了问题能查到当时用的是什么 Prompt。
+
+## 熔断器：从"装了没接线"到真正生效
+
+熔断器三态：闭合（正常放行）、断开（直接拒绝）、半开（放少量请求试探下游）。两个关键设计：
+
+- **按异常类型区分**：业务错误（余额不足、参数错误）不是下游故障，不计入熔断；只有网络错误和 5xx 才计数。否则用户输错几个参数就能把整个服务熔断。
+- **半开单请求试探**：半开状态原本全量放行，下游刚恢复就被打回断开（雪崩）。改为单请求试探，成功才恢复闭合。
+
+**踩过的真缺陷**：熔断器状态机和单元测试全绿，但实际没有业务调用方——相当于装了保险丝但没接进电路，熔断根本不生效。这个问题的教训是：测试通过 ≠ 已接入业务路径。
+
+**成本控制**：合成结果按哈希缓存（相同文本只合成一次），配防击穿锁——并发请求相同文本时只产生一次真实 API 调用，其余等待结果。
+
+## 异步工程三题
+
+**并发竞写**：多 worker 并发合成不同页时共享同一个数据库 session，出现"部分页随机失败"——单测复现不了，只有并发才触发。修复：每页独立 AsyncSession + Semaphore(3) 限并发。
+
+**Celery × asyncio 事件循环冲突**：Celery worker 是同步的，而 SQLAlchemy 异步 ORM 需要事件循环；每任务新建循环会让模块级连接池绑定到旧循环而失效。修复：任务收尾的 finally 中，在本循环内 dispose 连接池归还连接。
+
+**三层超时体系**：SDK 层（LLM 60s/TTS 30s）→ 单页层（120s）→ 任务层（1800s 软墙），每层超时都有 finally 四道防线保证状态收敛，防止任务永久卡死在"运行中"。配套 Celery Beat 每 10 分钟清理孤儿课件、过期音频与卡死项目。
+
+## 安全机制补强（迭代期新增）
+
+- **JWT 双 token 轮换**：刷新时 refresh token 立即轮换、旧 token 按剩余寿命拉黑——泄露窗口从最长 7 天缩到一次使用；登出双 token 都吊销
+- **账号锁定防邮箱枚举**：连续失败 5 次锁 15 分钟，失败计数与锁定标记用两个 Redis key 分离，防止攻击者借"锁定状态是否存在"探测邮箱是否注册
+- **Redis 双库分离**：db0 存可淘汰缓存，db1 存安全状态（黑名单/锁定）——否则缓存淘汰可能把黑名单 key 逐出，已登出的 token 复活
+- **滑动窗口限流**：Redis sorted set 实现，取 X-Forwarded-For 最右侧识别真实 IP，防伪造头绕过
+- **HMAC 签名 URL**：私有音频不暴露路径，HMAC-SHA256 签名临时 URL + 恒时比较（防时序侧信道）+ 路径穿越防护
+- **上传校验链**：MIME 白名单 + magic bytes（防改后缀）+ ZIP 炸弹防御
+- **SSE 认证**：一次性 ticket 认证，避免 JWT 进 URL 落入日志；进度推送从 1s 轮询改为 Redis pub/sub，延迟接近实时
+
+## 产品判断：明确不做什么
+
+完成 5 款竞品调研（讯飞智作/魔音工坊/Murf/ElevenLabs/腾讯智影）后，结论是不做通用配音——音色数量、商业资源、模型质量有难以追赶的壁垒，转而聚焦教学场景"语音 PPT"。产品化阶段按「优先级 = (失效概率 × 影响面) / 修复成本」重排需求，补齐熔断器半开探测、三层超时、账号锁定、月度配额、Prompt 外置、Prometheus 可观测性（四类指标埋点，asynccontextmanager 保证异常路径也记数）。
+
+## 数据模型（7张表，SQLAlchemy 异步 ORM + Alembic 迁移）
 
 - `users`：UUID主键、email/username唯一、role、quota_override(JSONB)
 - `voices`：type(preset/cloned)、provider、provider_metadata(JSONB)、reference_audio_path、consent_id
@@ -152,20 +195,20 @@ Worker内:
 
 ## 测试与完成状态
 
-**Python后端（主版本）：** 96个pytest通过（fakeredis + SQLite in-memory，无需真实服务），M1+M2全部完工，安全审计Critical清零，22项API契约检查通过。
+**Python后端（主版本，2026-09-05 实测）：** 144项pytest通过（fakeredis + SQLite in-memory，无需真实服务），M1+M2全部完工，安全审计Critical清零，22项真实HTTP栈契约检查通过（前后端接口的唯一裁判）。
 
 **Java后端（参考实现）：** 123个JUnit通过，含MCP Server模块（`@Tool`暴露TTS/克隆为Agent可调用工具），功能为参考实现未做端到端联调。
 
 **前端：** Vue 3 + TypeScript，vue-tsc类型检查通过，6个页面视图。
 
-**部署：** Docker Compose五服务编排，GitHub Actions CI。
+**部署：** Docker Compose六服务编排（前端/API/Worker/Beat/PG/Redis，含 Celery Beat 定时清理），API 不暴露宿主机端口，Nginx 反代统一入口，GitHub Actions CI。
 
 ## 如实声明的已知限制
 
 1. **单GPU串行推理**：RTX 4060仅够单请求推理，线上靠云API并发，本地Celery排队串行
 2. **流式延迟**：官方150ms首包在A100上，4060上RTF约0.3-1.0
 3. **WSL2/Docker硬依赖**：CosyVoice2官方只保Linux
-4. **Circuit Breaker未接入调用点**：`record_failure`/`record_success`未在生产代码调用，Java版通过`@CircuitBreaker`注解解决此遗留
+4. **明确不做 MOS 主观评测**（需 20-30 人盲测，一人项目做不了）、不做订阅/支付（零付费用户前是纯浪费）、不做 OpenTelemetry（三服务单体调用路径极短，分布式追踪收益不抵复杂度）
 
 ## GitHub
 
