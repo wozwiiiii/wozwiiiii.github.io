@@ -27,6 +27,14 @@ map_dirs:
     eps: "EP.13"
   - dir: "10月15"
     eps: "EP.14、EP.15"
+  - dir: "10月19"
+    eps: "EP.16"
+  # 以下目录已确认存在（文件名：10月27=deepsearch拆解2；11月9=应急问答系统拆解+deepsearch拆解3），
+  # 对应视频的 BV/标题/日期待 B站 API 拉取成功后补进 episodes，再回填 EP 号
+  - dir: "10月27"
+    eps: ""
+  - dir: "11月9"
+    eps: ""
 
 episodes:
   - ep: 1

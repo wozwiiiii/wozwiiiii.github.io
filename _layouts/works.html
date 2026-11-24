@@ -369,7 +369,7 @@ footer{padding:30px 0 44px;border-top:1px solid var(--ink-100);margin-top:14px}
       {% for m in mdirs %}
         <div class="pdf-card">
           <span class="name">知识点汇总 / {{ m.dir }}</span>
-          <span class="meta">{{ m.eps }} 配套思维导图</span>
+          <span class="meta">{% if m.eps and m.eps != "" %}{{ m.eps }} · {% endif %}配套思维导图</span>
           <a class="dl" href="{{ repo_base }}/{{ km_enc }}/{{ m.dir | url_encode }}" target="_blank" rel="noopener">打开目录<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
       {% endfor %}
